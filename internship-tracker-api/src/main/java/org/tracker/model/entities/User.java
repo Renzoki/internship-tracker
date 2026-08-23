@@ -38,6 +38,12 @@ public class User {
 
     public User() {}
 
+    //For testing
+    public User(UUID id, String firstName, String lastName, String email, String passwordHash, Instant createdAt) {
+        this(firstName, lastName, email, passwordHash, createdAt);
+        this.id = id;
+    }
+
     public User(String firstName, String lastName, String email, String passwordHash, Instant createdAt) {
         this.firstName = firstName;
         this.lastName = lastName;
