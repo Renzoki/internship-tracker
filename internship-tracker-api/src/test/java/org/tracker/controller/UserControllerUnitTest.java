@@ -13,8 +13,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.UserMapper;
 import org.tracker.model.business.CreateUserCommand;
+import org.tracker.model.business.UpdateUserCommand;
 import org.tracker.model.entities.User;
 import org.tracker.service.UserService;
+
+import javax.print.attribute.standard.Media;
 import java.util.List;
 import java.util.UUID;
 
@@ -205,6 +208,152 @@ public class UserControllerUnitTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
                 .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateUser_fullUpdate() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        when(userService.updateExistingUser(any(UpdateUserCommand.class)))
+                .thenReturn(new User(
+                        mockId,
+                        "Renz",
+                        "Tabuzo",
+                        "renzonifico@gmail.com",
+                        null,
+                        null
+                        ));
+
+        String requestBody = """
+                {
+                    "firstName": "Renz",
+                    "lastName": "Tabuzo",
+                    "email": "renzonifico@gmail.com",
+                    "password": "password123"
+                }
+                """;
+
+        String expectedJson = """
+                {
+                    "id": "%s",
+                    "firstName": "Renz",
+                    "lastName": "Tabuzo",
+                    "email": "renzonifico@gmail.com"
+                }
+                """.formatted(mockId);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/" + mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    public void updateUser_partialUpdate() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        when(userService.updateExistingUser(any(UpdateUserCommand.class)))
+                .thenReturn(new User(
+                        mockId,
+                        "Renz",
+                        "Tabuzo",
+                        "renzonifico@gmail.com",
+                        null,
+                        null
+                ));
+
+        //Update only first name and password
+        String requestBody = """
+                { 
+                    "firstName": "Renz",
+                    "password": "password123"
+                }
+                """;
+
+        String expectedJson = """
+                {
+                    "id": "%s",
+                    "firstName": "Renz",
+                    "lastName": "Tabuzo",
+                    "email": "renzonifico@gmail.com"
+                }
+                """.formatted(mockId);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/" + mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    public void updateUser_blankUpdate() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        String requestBody = """
+            { }
+            """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/" + mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateUser_containsNotNullButBlankFields() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        String requestBody = """
+            { 
+                "firstName": "Renz",
+                "lastName": "   ",
+                "email": "renzonifico@gmail.com",
+                "password": "   "
+            }
+            """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/" + mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateUser_invalidEmailField() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+        String requestBody = """
+        {
+            "firstName": "Renz",
+            "lastName": "Tabuzo",
+            "email": "renzonificoAtgmail.com",
+            "password": "password123"
+        }
+        """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put("/users/" + mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
