@@ -1,5 +1,6 @@
 package org.tracker.model.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
@@ -32,4 +33,9 @@ public record UpdateUserRequest(
     private static final String EMAIL_LENGTH_ERROR = "Email must be between 1 and 120 characters.";
     private static final String INVALID_EMAIL_ERROR = "Invalid email provided.";
     private static final String PASSWORD_LENGTH_ERROR = "Password must be at least 8 characters.";
+
+    @AssertTrue(message = "At least one field must be provided for update")
+    public boolean isAnyFieldNonNull() {
+        return firstName != null || lastName != null || email != null;
+    }
 }
