@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.tracker.mapper.UserMapper;
 import org.tracker.model.business.CreateUserCommand;
+import org.tracker.model.business.UpdateUserCommand;
 import org.tracker.model.entities.User;
 import org.tracker.model.request.CreateUserRequest;
+import org.tracker.model.request.UpdateUserRequest;
 import org.tracker.model.response.UserResponse;
 import org.tracker.service.UserService;
 
@@ -41,8 +43,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createNewStudent(@Valid @RequestBody CreateUserRequest request){
-        CreateUserCommand command = mapper.toCommand(request);
+    public ResponseEntity<UserResponse> createNewStudent(
+            @Valid @RequestBody CreateUserRequest request
+    ){
+        CreateUserCommand command = mapper.toCreateCommand(request);
         User user = userService.createNewUser(command);
         UserResponse response = mapper.toResponse(user);
 
@@ -53,5 +57,17 @@ public class UserController {
                 .toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateExistingStudent(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserRequest request
+    ){
+        UpdateUserCommand command = mapper.toUpdateCommand(id, request);
+        User user = userService.updateExistingUser(command);
+        UserResponse response = mapper.toResponse(user);
+
+        return ResponseEntity.ok(response);
     }
 }

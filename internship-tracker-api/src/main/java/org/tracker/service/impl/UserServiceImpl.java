@@ -3,6 +3,7 @@ package org.tracker.service.impl;
 import org.springframework.stereotype.Service;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.model.business.CreateUserCommand;
+import org.tracker.model.business.UpdateUserCommand;
 import org.tracker.model.entities.User;
 import org.tracker.repository.UserRepository;
 import org.tracker.service.UserService;
@@ -37,6 +38,30 @@ public class UserServiceImpl implements UserService {
                 command.email(),    // TODO: Check if pre-existing email exists
                 command.password(), // TODO: Hash password using BCryptPasswordEncoder later
                 Instant.now());
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateExistingUser(UpdateUserCommand command) {
+        User user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new UserNotFoundException(command.userId()));
+
+        if(command.firstName() != null){
+            user.setFirstName(command.firstName());
+        }
+
+        if(command.lastName() != null){
+            user.setLastName(command.lastName());
+        }
+
+        if(command.email() != null){
+            user.setEmail(command.email()); // TODO: Check if pre-existing email exists
+        }
+
+        if(command.password() != null){
+            user.setPasswordHash(command.password()); // TODO: Hash password using BcryptPasswordEncoder later
+        }
 
         return userRepository.save(user);
     }
