@@ -1,7 +1,6 @@
 package org.tracker.controller;
 
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -74,7 +73,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id){
-        userService.deleteUser(id);
+        userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
 }

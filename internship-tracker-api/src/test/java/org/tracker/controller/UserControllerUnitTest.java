@@ -17,12 +17,11 @@ import org.tracker.model.business.UpdateUserCommand;
 import org.tracker.model.entities.User;
 import org.tracker.service.UserService;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
@@ -357,5 +356,34 @@ public class UserControllerUnitTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteUser_userExists() throws Exception {
+        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/users/" + mockId);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent());
+
+        verify(userService, times(1)).deleteUserById(any(UUID.class));
+    }
+
+    @Test
+    public void deleteUser_userDoesNotExist() throws Exception {
+        UUID nonExistentId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+        doThrow(new UserNotFoundException(nonExistentId))
+                .when(userService).deleteUserById(nonExistentId);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/users/" + nonExistentId);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).deleteUserById(any(UUID.class));
     }
 }

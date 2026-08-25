@@ -12,5 +12,5 @@ public interface UserService {
     User getUserById(UUID id);
     User createNewUser(CreateUserCommand command);
     User updateExistingUser(UpdateUserCommand command);
-    void deleteUser(UUID id);
+    void deleteUserById(UUID id);
 }
