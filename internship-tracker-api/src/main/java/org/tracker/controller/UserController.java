@@ -1,6 +1,7 @@
 package org.tracker.controller;
 
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,7 +44,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createNewStudent(
+    public ResponseEntity<UserResponse> createNewUser(
             @Valid @RequestBody CreateUserRequest request
     ){
         CreateUserCommand command = mapper.toCreateCommand(request);
@@ -60,7 +61,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateExistingStudent(
+    public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request
     ){
@@ -69,5 +70,11 @@ public class UserController {
         UserResponse response = mapper.toResponse(user);
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id){
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
