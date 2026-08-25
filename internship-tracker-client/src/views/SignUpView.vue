@@ -26,10 +26,8 @@ async function handleSignUp() {
     })
 
     if (response.ok) {
-      // Log HTTP Status Code (e.g., 201 Created)
       console.log(`%c HTTP ${response.status} ${response.statusText}`, 'color: #42b883; font-weight: bold;')
 
-      // Parse and log the user object returned from Spring Boot
       const createdUser = await response.json()
       console.log('User created successfully:', createdUser)
 
@@ -53,13 +51,11 @@ async function handleSignUp() {
       <h2>Create Account</h2>
     </div>
 
-    <!-- Error Banner -->
     <div v-if="errorMessage" class="error-banner">
       {{ errorMessage }}
     </div>
 
     <form @submit.prevent="handleSignUp">
-      <!-- Side-by-Side Name Row -->
       <div class="row">
         <div class="input-group">
           <label>FIRST NAME</label>
