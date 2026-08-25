@@ -1,6 +1,9 @@
 package org.tracker.service.impl;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tracker.exception.EmailAlreadyExistsException;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.model.business.CreateUserCommand;
 import org.tracker.model.business.UpdateUserCommand;
@@ -15,9 +18,11 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder encoder) {
          this.userRepository = userRepository;
+         this.encoder = encoder;
     }
 
     @Override
@@ -32,11 +37,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createNewUser(CreateUserCommand command) {
+        if(userRepository.existsByEmail(command.email())){
+            throw new EmailAlreadyExistsException(command.email());
+        }
+
+        String hashedPassword = encoder.encode(command.password());
+
         User user = new User(
                 command.firstName(),
                 command.lastName(),
-                command.email(),    // TODO: Check if pre-existing email exists
-                command.password(), // TODO: Hash password using BCryptPasswordEncoder later
+                command.email(),
+                hashedPassword,
                 Instant.now());
 
         return userRepository.save(user);
@@ -56,11 +67,15 @@ public class UserServiceImpl implements UserService {
         }
 
         if(command.email() != null){
-            user.setEmail(command.email()); // TODO: Check if pre-existing email exists
+            if(userRepository.existsByEmail(command.email())){
+                throw new EmailAlreadyExistsException(command.email());
+            }
+            user.setEmail(command.email());
         }
 
         if(command.password() != null){
-            user.setPasswordHash(command.password()); // TODO: Hash password using BcryptPasswordEncoder later
+            String hashedPassword = encoder.encode(command.password());
+            user.setPasswordHash(hashedPassword);
         }
 
         return userRepository.save(user);
