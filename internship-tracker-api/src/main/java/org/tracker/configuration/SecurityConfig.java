@@ -17,6 +17,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
