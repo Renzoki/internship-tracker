@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "http://localhost:5173") // add temporary cors management while ssecurity is not configured
 public class UserController {
     private final UserService userService;
     private final UserMapper mapper;
