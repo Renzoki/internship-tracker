@@ -1,4 +1,4 @@
-package org.tracker.controller;
+package org.tracker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.tracker.controller.UserController;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.UserMapper;
 import org.tracker.model.business.CreateUserCommand;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @Import(UserMapper.class)
-public class UserControllerUnitTest {
+public class UserControllerSliceTest {
 
     @Autowired
     private MockMvc mockMvc;
