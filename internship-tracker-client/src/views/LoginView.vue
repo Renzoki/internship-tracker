@@ -4,22 +4,18 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const firstName = ref('')
-const lastName = ref('')
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 
-async function handleSignUp() {
+async function handleLogin() {
   errorMessage.value = ''
 
   try {
-    const response = await fetch('http://localhost:8080/users', {
+    const response = await fetch('http://localhost:8080/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        firstName: firstName.value,
-        lastName: lastName.value,
         email: email.value,
         password: password.value
       })
@@ -28,16 +24,18 @@ async function handleSignUp() {
     if (response.ok) {
       console.log(`%c HTTP ${response.status} ${response.statusText}`, 'color: #42b883; font-weight: bold;')
 
-      const createdUser = await response.json()
-      console.log('User created successfully:', createdUser)
+      const data = await response.json()
+      console.log('Login response payload:', data)
 
-      router.push('/')
-    } else if (response.status === 409) {
-      errorMessage.value = 'An account with this email address already exists.'
+      localStorage.setItem('jwt_token', data.token)
+
+      router.push('/dashboard')
+    } else if (response.status === 401 || response.status === 403) {
+      errorMessage.value = 'Invalid email or password.'
     } else {
       console.warn(`Server responded with HTTP Status: ${response.status}`)
       const data = await response.json().catch(() => null)
-      errorMessage.value = data?.message || 'Registration failed. Please check your inputs.'
+      errorMessage.value = data?.message || 'Login failed. Please try again.'
     }
   } catch (err) {
     console.error('Request failed:', err)
@@ -50,36 +48,14 @@ async function handleSignUp() {
   <div class="card-form">
     <div class="header">
       <span class="tag">INTERNSHIP TRACKER</span>
-      <h2>Create Account</h2>
+      <h2>Welcome Back</h2>
     </div>
 
     <div v-if="errorMessage" class="error-banner">
       {{ errorMessage }}
     </div>
 
-    <form @submit.prevent="handleSignUp">
-      <div class="row">
-        <div class="input-group">
-          <label>FIRST NAME</label>
-          <input
-            v-model="firstName"
-            placeholder="Alex"
-            maxlength="50"
-            required
-          />
-        </div>
-
-        <div class="input-group">
-          <label>LAST NAME</label>
-          <input
-            v-model="lastName"
-            placeholder="Morgan"
-            maxlength="50"
-            required
-          />
-        </div>
-      </div>
-
+    <form @submit.prevent="handleLogin">
       <div class="input-group">
         <label>EMAIL ADDRESS</label>
         <input
@@ -96,16 +72,15 @@ async function handleSignUp() {
         <input
           v-model="password"
           type="password"
-          placeholder="Min. 8 characters"
-          minlength="8"
+          placeholder="Enter your password"
           required
         />
       </div>
 
-      <button type="submit" class="btn-submit">REGISTER</button>
+      <button type="submit" class="btn-submit">LOG IN</button>
     </form>
 
-    <router-link to="/" class="back-link">← Cancel and return home</router-link>
+    <router-link to="/signup" class="back-link">Need an account? Sign up</router-link>
   </div>
 </template>
 
@@ -147,12 +122,6 @@ h2 {
 }
 
 form { display: flex; flex-direction: column; gap: 1.25rem; }
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
 
 .input-group { display: flex; flex-direction: column; gap: 0.4rem; }
 .input-group label {

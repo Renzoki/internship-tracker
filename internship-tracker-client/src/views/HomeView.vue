@@ -1,12 +1,4 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-
-const users = ref([])
-
-onMounted(async () => {
-  const res = await fetch('http://localhost:8080/users')
-  users.value = await res.json()
-})
 </script>
 
 <template>
@@ -19,7 +11,7 @@ onMounted(async () => {
 
     <div class="actions">
       <router-link to="/signup" class="btn-box-vue">CREATE AN ACCOUNT</router-link>
-      <button class="btn-text-disabled" disabled>LOG IN (COMING SOON)</button>
+      <router-link to="/login" class="btn-outline-vue">LOG IN</router-link>
     </div>
   </div>
 </template>
@@ -98,15 +90,24 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-.btn-text-disabled {
-  background: none;
-  border: none;
-  color: #64748b;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
-  font-weight: 500;
-  cursor: not-allowed;
-  margin-top: 0.5rem;
+.btn-outline-vue {
+  background-color: transparent;
+  color: #42b883;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+  border: 1px solid #42b883;
+}
+
+.btn-outline-vue:hover {
+  background-color: rgba(66, 184, 131, 0.1);
+  transform: translateY(-1px);
 }
 </style>
