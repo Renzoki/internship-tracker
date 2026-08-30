@@ -1,5 +1,6 @@
 package org.tracker.configuration;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = header.substring(7);
-        UUID userId = jwtService.extractId(jwt);
+        UUID userId = null;
+        try {
+            userId = jwtService.extractId(jwt);
+        } catch (JwtException _) { }
 
         if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null){
             User user = userService.getUserById(userId);
