@@ -22,11 +22,9 @@ import java.util.UUID;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserService userService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserService userService){
+    public JwtAuthenticationFilter(JwtService jwtService){
         this.jwtService = jwtService;
-        this.userService = userService;
     }
 
     @Override
@@ -44,12 +42,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = header.substring(7);
         UUID userId = null;
+        String email = null;
         try {
             userId = jwtService.extractId(jwt);
+            email = jwtService.extractEmail(jwt);
         } catch (JwtException _) { }
 
         if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            User user = userService.getUserById(userId);
+            UserPrincipal user = new UserPrincipal(userId, email);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     user,
                     null,
