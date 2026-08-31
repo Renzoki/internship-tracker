@@ -11,7 +11,6 @@ import org.tracker.repository.UserRepository;
 import org.tracker.service.UserService;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,11 +21,6 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder encoder) {
          this.userRepository = userRepository;
          this.encoder = encoder;
-    }
-
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
     @Override

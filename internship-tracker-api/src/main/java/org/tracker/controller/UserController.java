@@ -30,16 +30,6 @@ public class UserController {
         this.mapper = mapper;
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getUsers(){
-        List<User> userList = userService.getAllUsers();
-        List<UserResponse> response = userList.stream().map(mapper::toResponse).toList();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id){
-        User user = userService.getUserById(id);
     @GetMapping("/self")
     public ResponseEntity<UserResponse> getUserById(@AuthenticationPrincipal UserPrincipal principal){
         System.out.println("Principal in controller: " + principal);

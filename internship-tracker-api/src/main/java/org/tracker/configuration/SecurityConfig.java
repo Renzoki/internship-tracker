@@ -49,9 +49,13 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/test/authorized-endpoint").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/users/self").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/users/self").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/users/self").authenticated()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
