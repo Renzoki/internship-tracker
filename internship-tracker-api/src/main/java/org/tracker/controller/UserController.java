@@ -2,8 +2,10 @@ package org.tracker.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.tracker.configuration.UserPrincipal;
 import org.tracker.mapper.UserMapper;
 import org.tracker.model.business.CreateUserCommand;
 import org.tracker.model.business.UpdateUserCommand;
@@ -38,6 +40,10 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id){
         User user = userService.getUserById(id);
+    @GetMapping("/self")
+    public ResponseEntity<UserResponse> getUserById(@AuthenticationPrincipal UserPrincipal principal){
+        System.out.println("Principal in controller: " + principal);
+        User user = userService.getUserById(principal.id());
         UserResponse response = mapper.toResponse(user);
         return ResponseEntity.ok(response);
     }
@@ -59,21 +65,21 @@ public class UserController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/self")
     public ResponseEntity<UserResponse> updateUser(
-            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody UpdateUserRequest request
     ){
-        UpdateUserCommand command = mapper.toUpdateCommand(id, request);
+        UpdateUserCommand command = mapper.toUpdateCommand(principal.id(), request);
         User user = userService.updateExistingUser(command);
         UserResponse response = mapper.toResponse(user);
 
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id){
-        userService.deleteUserById(id);
+    @DeleteMapping("/self")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserPrincipal principal){
+        userService.deleteUserById(principal.id());
         return ResponseEntity.noContent().build();
     }
 }
