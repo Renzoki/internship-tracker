@@ -5,6 +5,7 @@ import org.tracker.model.enums.ApplicationStatus;
 import org.tracker.model.enums.WorkMode;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -25,9 +26,6 @@ public class Application {
     @Column(name = "position_title", nullable = false)
     private String positionTitle;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "location")
     private String location;
 
@@ -39,7 +37,7 @@ public class Application {
     private String applicationUrl;
 
     @Column(name = "date_applied")
-    private Instant dateApplied;
+    private LocalDate dateApplied;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
@@ -53,12 +51,16 @@ public class Application {
 
     public Application() {}
 
-    public Application(User user, String companyName, String positionTitle, String description, String location,
-                       WorkMode workMode, String applicationUrl, Instant dateApplied, Instant createdAt) {
+    public Application(UUID id, User user, String companyName, String positionTitle, String location,
+                       WorkMode workMode, String applicationUrl, LocalDate dateApplied, Instant createdAt){
+        this.id = id;
+        this(user, companyName, positionTitle, location, workMode, applicationUrl, dateApplied, createdAt);
+    }
+    public Application(User user, String companyName, String positionTitle, String location,
+                       WorkMode workMode, String applicationUrl, LocalDate dateApplied, Instant createdAt) {
         this.user = user;
         this.companyName = companyName;
         this.positionTitle = positionTitle;
-        this.description = description;
         this.location = location;
         this.workMode = workMode;
         this.applicationUrl = applicationUrl;
@@ -92,14 +94,6 @@ public class Application {
         this.positionTitle = positionTitle;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getLocation() {
         return location;
     }
@@ -124,7 +118,7 @@ public class Application {
         this.applicationUrl = applicationUrl;
     }
 
-    public Instant getDateApplied() {
+    public LocalDate getDateApplied() {
         return dateApplied;
     }
 
@@ -166,7 +160,6 @@ public class Application {
                 "user=" + user +
                 ", companyName='" + companyName + '\'' +
                 ", positionTitle='" + positionTitle + '\'' +
-                ", description='" + description + '\'' +
                 ", location='" + location + '\'' +
                 ", workMode=" + workMode +
                 ", applicationUrl='" + applicationUrl + '\'' +
