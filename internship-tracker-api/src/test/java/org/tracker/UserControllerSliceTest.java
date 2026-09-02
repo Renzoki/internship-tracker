@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         UserMapper.class
 })
 public class UserControllerSliceTest {
-
     private UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private String mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
             "eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJuYW1lIjoiUmVueiBUYWJ1em8iLCJpYXQiOjE1MTYyMzkwMjJ9." +
@@ -53,7 +52,6 @@ public class UserControllerSliceTest {
 
     @BeforeEach
     public void jwtSetup(){
-        UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
         when(jwtService.extractId(any(String.class))).thenReturn(mockId);
         when(jwtService.extractEmail(any(String.class))).thenReturn("renzonifico@gmail.com");
     }
