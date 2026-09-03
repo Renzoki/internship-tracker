@@ -13,7 +13,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tracker.configuration.JwtAuthenticationFilter;
 import org.tracker.configuration.SecurityConfig;
 import org.tracker.controller.ApplicationController;
+import org.tracker.exception.ApplicationNotFoundException;
 import org.tracker.mapper.ApplicationMapper;
+import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.enums.WorkMode;
 import org.tracker.service.ApplicationService;
@@ -36,9 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 public class ApplicationControllerSliceTest {
     private final UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private String mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+    private final String mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
             "eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJuYW1lIjoiUmVueiBUYWJ1em8iLCJpYXQiOjE1MTYyMzkwMjJ9." +
             "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+    private final String mockUrl = "https://example.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,46 +56,46 @@ public class ApplicationControllerSliceTest {
     private ApplicationMapper mapper;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         String mockEmail = "renzonifico@gmail.com";
         when(jwtService.extractId(any(String.class))).thenReturn(mockId);
         when(jwtService.extractEmail(any(String.class))).thenReturn(mockEmail);
     }
 
     @Test
-    public void userExists_HasApplications_returns200() throws Exception {
+    public void getAllApplications_HasApplications_returns200() throws Exception {
         when(applicationService.getAllApplications(any(UUID.class)))
                 .thenReturn(List.of(
                         new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
-                                        WorkMode.HYBRID, "mockUrl", LocalDate.parse("2004-02-14"), null),
+                                WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null),
                         new Application(mockId, null, "IBM", "Quality Assurance Intern", "Taguig",
-                                WorkMode.REMOTE, "mockUrl", LocalDate.parse("2004-09-23"), null)
+                                WorkMode.REMOTE, mockUrl, LocalDate.parse("2004-09-23"), null)
                 ));
 
         String expectedJson = """
-            [
-                {
-                    "id": "%s",
-                    "companyName": "Oracle",
-                    "positionTitle": "Software Engineer Intern",
-                    "location": "Makati",
-                    "workMode": "HYBRID",
-                    "applicationUrl": "mockUrl",
-                    "status": "APPLIED",
-                    "dateApplied": "2004-02-14"
-                },
-                {
-                    "id": "%s",
-                    "companyName": "IBM",
-                    "positionTitle": "Quality Assurance Intern",
-                    "location": "Taguig",
-                    "workMode": "REMOTE",
-                    "applicationUrl": "mockUrl",
-                    "status": "APPLIED",
-                    "dateApplied": "2004-09-23"
-                }
-            ]
-        """.formatted(mockId, mockId);
+                    [
+                        {
+                            "id": "%s",
+                            "companyName": "Oracle",
+                            "positionTitle": "Software Engineer Intern",
+                            "location": "Makati",
+                            "workMode": "HYBRID",
+                            "applicationUrl": "%s",
+                            "status": "APPLIED",
+                            "dateApplied": "2004-02-14"
+                        },
+                        {
+                            "id": "%s",
+                            "companyName": "IBM",
+                            "positionTitle": "Quality Assurance Intern",
+                            "location": "Taguig",
+                            "workMode": "REMOTE",
+                            "applicationUrl": "%s",
+                            "status": "APPLIED",
+                            "dateApplied": "2004-09-23"
+                        }
+                    ]
+                """.formatted(mockId, mockUrl, mockId, mockUrl);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/applications/self")
@@ -106,7 +109,7 @@ public class ApplicationControllerSliceTest {
     }
 
     @Test
-    public void userExists_noApplications_returns200() throws Exception {
+    public void getAllApplications_noApplications_returns200() throws Exception {
         when(applicationService.getAllApplications(any(UUID.class)))
                 .thenReturn(List.of());
 
@@ -122,4 +125,63 @@ public class ApplicationControllerSliceTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(expectedJson));
     }
+
+    @Test
+    public void getApplicationById_applicationExists_returns200() throws Exception {
+        when(applicationService.getApplicationById(any(UUID.class), any(UUID.class)))
+                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                        WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
+
+        String expectedJson = """
+        {
+            "id": "%s",
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s",
+            "status": "APPLIED",
+            "dateApplied": "2004-02-14"
+        }
+        """.formatted(mockId, mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    public void getApplicationById_applicationDoesNotExist_returns404() throws Exception {
+        when(applicationService.getApplicationById(any(UUID.class), any(UUID.class)))
+                .thenThrow(new ApplicationNotFoundException(mockId));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getApplicationById_invalidUUID_returns400() throws Exception {
+        when(applicationService.getApplicationById(any(UUID.class), any(UUID.class)))
+                .thenThrow(new ApplicationNotFoundException(mockId));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get("/applications/" + "invalid-uuid")
+                .header("Authorization", "Bearer " + mockToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
 }
