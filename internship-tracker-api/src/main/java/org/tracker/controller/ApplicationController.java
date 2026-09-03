@@ -8,8 +8,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.tracker.configuration.UserPrincipal;
 import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
+import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.request.CreateApplicationRequest;
+import org.tracker.model.request.UpdateApplicationDetailsRequest;
 import org.tracker.model.response.ApplicationResponse;
 import org.tracker.service.ApplicationService;
 
@@ -39,8 +41,8 @@ public class ApplicationController {
 
     @GetMapping("/{applicationId}")
     public ResponseEntity<ApplicationResponse> getApplicationById(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @PathVariable UUID applicationId
+            @PathVariable UUID applicationId,
+            @AuthenticationPrincipal UserPrincipal principal
     ){
         Application application = applicationService.getApplicationById(applicationId, principal.id());
         ApplicationResponse response = mapper.toResponse(application);
@@ -63,6 +65,18 @@ public class ApplicationController {
                 .toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+
+    @PatchMapping("/{applicationId}/details")
+    public ResponseEntity<ApplicationResponse> updateApplicationDetails(
+            @PathVariable UUID applicationId,
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody UpdateApplicationDetailsRequest request
+    ){
+        UpdateApplicationDetailsCommand command = mapper.toUpdateDetailsCommand(principal.id(), applicationId, request);
+        Application application = applicationService.updateApplicationDetails(command);
+        ApplicationResponse response = mapper.toResponse(application);
+        return ResponseEntity.ok(response);
     }
 
 }

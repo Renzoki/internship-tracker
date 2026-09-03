@@ -2,8 +2,10 @@ package org.tracker.mapper;
 
 import org.springframework.stereotype.Component;
 import org.tracker.model.business.CreateApplicationCommand;
+import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.request.CreateApplicationRequest;
+import org.tracker.model.request.UpdateApplicationDetailsRequest;
 import org.tracker.model.response.ApplicationResponse;
 
 import java.util.UUID;
@@ -32,5 +34,17 @@ public class ApplicationMapper {
                 request.workMode(),
                 request.applicationUrl(),
                 request.dateApplied());
+    }
+
+    public UpdateApplicationDetailsCommand toUpdateDetailsCommand(UUID userId, UUID applicationId, UpdateApplicationDetailsRequest request){
+        return new UpdateApplicationDetailsCommand(
+                userId,
+                applicationId,
+                request.companyName(),
+                request.positionTitle(),
+                request.location(),
+                request.workMode(),
+                request.applicationUrl()
+        );
     }
 }

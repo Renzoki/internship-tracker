@@ -59,7 +59,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/applications/self").authenticated()
                         .requestMatchers(HttpMethod.GET, "/applications/{applicationId}").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/applications/{applicationId}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/applications").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/applications/{applicationId}/details").authenticated()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

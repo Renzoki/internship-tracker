@@ -4,10 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.tracker.exception.ApplicationNotFoundException;
-import org.tracker.exception.AuthenticationErrorException;
-import org.tracker.exception.EmailAlreadyExistsException;
-import org.tracker.exception.UserNotFoundException;
+import org.tracker.exception.*;
 import org.tracker.model.response.ErrorResponse;
 
 @RestControllerAdvice
@@ -37,4 +34,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ApplicationAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedApplicationAccessError(ApplicationAccessDeniedException ex){
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
 }
