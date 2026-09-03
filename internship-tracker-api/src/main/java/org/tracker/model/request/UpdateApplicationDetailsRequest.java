@@ -1,5 +1,6 @@
 package org.tracker.model.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.tracker.annotation.NullOrNotBlank;
@@ -34,4 +35,9 @@ public record UpdateApplicationDetailsRequest(
     private static final String POSITION_TITLE_LENGTH_ERROR = "Position title must be between 1 and 50 characters long.";
     private static final String LOCATION_LENGTH_ERROR = "Location must be less than 150 characters long.";
     private static final String INVALID_URL_ERROR = "Application URL must follow valid URL syntax.";
+
+    @AssertTrue(message = "At least one field must be provided for update")
+    public boolean isAnyFieldNonNull() {
+        return companyName != null || positionTitle != null || location != null || workMode != null || applicationUrl != null;
+    }
 }
