@@ -37,6 +37,16 @@ public class ApplicationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{applicationId}")
+    public ResponseEntity<ApplicationResponse> getApplicationById(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID applicationId
+    ){
+        Application application = applicationService.getApplicationById(applicationId, principal.id());
+        ApplicationResponse response = mapper.toResponse(application);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<ApplicationResponse> addNewApplication(
             @AuthenticationPrincipal UserPrincipal principal,

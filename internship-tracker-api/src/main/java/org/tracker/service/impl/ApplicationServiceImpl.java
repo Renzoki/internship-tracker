@@ -28,6 +28,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     public List<Application> getAllApplications(UUID userId) {
         return applicationRepository.findAllByUserId(userId);
     }
+
+    @Override
+    public Application getApplicationById(UUID applicationId, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return applicationRepository.findByIdAndUser(applicationId, user)
+                .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+    }
+
     @Override
     public Application addNewApplication(CreateApplicationCommand command) {
         User user = userRepository.findById(command.userId())

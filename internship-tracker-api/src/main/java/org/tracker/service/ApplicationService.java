@@ -8,5 +8,6 @@ import java.util.UUID;
 
 public interface ApplicationService {
     List<Application> getAllApplications(UUID userId);
+    Application getApplicationById(UUID applicationId, UUID userId);
     Application addNewApplication(CreateApplicationCommand command);
 }
