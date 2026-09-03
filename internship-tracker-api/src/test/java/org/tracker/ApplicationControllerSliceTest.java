@@ -184,4 +184,146 @@ public class ApplicationControllerSliceTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void postApplication_validRequestBody_returns201() throws Exception {
+        when(applicationService.addNewApplication(any(CreateApplicationCommand.class)))
+                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                        WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
+
+        String requestBody = """
+        {
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s",
+            "dateApplied": "2004-02-14"
+        }
+        """.formatted(mockUrl);
+
+        String expectedJson = """
+        {
+            "id": "%s",
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s",
+            "status": "APPLIED",
+            "dateApplied": "2004-02-14"
+        }
+        """.formatted(mockId, mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    public void postApplication_missingRequestBody_returns400() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void postApplication_missingFieldsInRequest_returns400() throws Exception {
+        String requestBody = """
+        {
+            "companyName": "Oracle",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s"
+        }
+        """.formatted(mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void postApplication_invalidApplicationLinkFormat_returns400() throws Exception {
+        String requestBody = """
+        {
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "invalid-link-123",
+            "dateApplied": "2004-02-14"
+        }
+        """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void postApplication_applicationDateSetInFuture_returns400() throws Exception {
+        String requestBody = """
+        {
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s",
+            "dateApplied": "3025-02-14"
+        }
+        """.formatted(mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void postApplication_invalidWorkModeEnum_returns400() throws Exception {
+        String requestBody = """
+        {
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "REMOTE/HYBDID",
+            "applicationUrl": "%s",
+            "dateApplied": "3025-02-14"
+        }
+        """.formatted(mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/applications")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
 }
