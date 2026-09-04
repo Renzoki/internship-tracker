@@ -19,7 +19,9 @@ import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
+import org.tracker.model.enums.ApplicationStatus;
 import org.tracker.model.enums.WorkMode;
+import org.tracker.model.request.UpdateApplicationStatusCommand;
 import org.tracker.service.ApplicationService;
 import org.tracker.service.JwtService;
 
@@ -556,5 +558,121 @@ public class ApplicationControllerSliceTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void updateApplicationStatus_validRequestBody_returns200() throws Exception {
+        Application mockApplication = new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null);
+        mockApplication.setStatus(ApplicationStatus.FOR_INTERVIEW);
+
+        when(applicationService.updateApplicationStatus(any(UpdateApplicationStatusCommand.class)))
+                .thenReturn(mockApplication);
+
+        String requestBody = """
+            {
+                "status": "FOR_INTERVIEW"
+            }
+        """;
+
+        String expectedJson = """
+        {
+            "id": "%s",
+            "companyName": "Oracle",
+            "positionTitle": "Software Engineer Intern",
+            "location": "Makati",
+            "workMode": "HYBRID",
+            "applicationUrl": "%s",
+            "status": "FOR_INTERVIEW",
+            "dateApplied": "2004-02-14"
+        }
+        """.formatted(mockId, mockUrl);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/applications/" + mockId + "/status")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    public void updateApplicationStatus_applicationDoesNotExist_returns404() throws Exception {
+        when(applicationService.updateApplicationStatus(any(UpdateApplicationStatusCommand.class)))
+                .thenThrow(new ApplicationNotFoundException(mockId));
+
+        String requestBody = """
+            {
+                "status": "FOR_INTERVIEW"
+            }
+        """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/applications/" + mockId + "/status")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateApplicationStatus_missingRequestBody_returns400() throws Exception {
+        String requestBody = "";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/applications/" + mockId + "/status")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateApplicationStatus_nullStatusEnumProvided_returns400() throws Exception {
+        String requestBody = """
+                {
+                    "status": "null"
+                }
+       """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/applications/" + mockId + "/status")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateApplicationStatus_invalidStatusEnumProvided_returns400() throws Exception {
+        String requestBody = """
+                {
+                    "status": "FAILED"
+                }
+       """;
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch("/applications/" + mockId + "/status")
+                .header("Authorization", "Bearer " + mockToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
     }
 }
