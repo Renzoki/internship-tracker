@@ -93,4 +93,12 @@ public class ApplicationController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{applicationId}")
+    public ResponseEntity<Void> deleteApplicationById(
+            @PathVariable UUID applicationId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        applicationService.deleteApplicationById(applicationId, principal.id());
+        return ResponseEntity.noContent().build();
+    }
 }

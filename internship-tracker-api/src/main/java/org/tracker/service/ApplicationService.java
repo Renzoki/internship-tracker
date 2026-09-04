@@ -15,4 +15,5 @@ public interface ApplicationService {
     Application addNewApplication(CreateApplicationCommand command);
     Application updateApplicationDetails(UpdateApplicationDetailsCommand command);
     Application updateApplicationStatus(UpdateApplicationStatusCommand command);
+    void deleteApplicationById(UUID applicationId, UUID userId);
 }

@@ -36,9 +36,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Application getApplicationById(UUID applicationId, UUID userId) {
         User user = getUser(userId);
+        Application application = getApplication(applicationId);
 
-        return applicationRepository.findByIdAndUser(applicationId, user)
-                .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+        if(!user.getApplicationList().contains(application)){
+            throw new ApplicationAccessDeniedException(userId, applicationId);
+        }
+
+        return application;
     }
 
     @Override
@@ -108,6 +112,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setUpdatedAt(Instant.now());
         application.setStatus(command.status());
         return applicationRepository.save(application);
+    }
+
+    @Override
+    public void deleteApplicationById(UUID applicationId, UUID userId) {
+        User user = getUser(userId);
+        Application application = getApplication(applicationId);
+
+        if(!user.getApplicationList().contains(application)){
+            throw new ApplicationAccessDeniedException(userId, applicationId);
+        }
+
+        applicationRepository.delete(application);
     }
 
     private User getUser(UUID userId){
