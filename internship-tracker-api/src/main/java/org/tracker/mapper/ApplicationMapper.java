@@ -6,6 +6,8 @@ import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.request.CreateApplicationRequest;
 import org.tracker.model.request.UpdateApplicationDetailsRequest;
+import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.request.UpdateApplicationStatusRequest;
 import org.tracker.model.response.ApplicationResponse;
 
 import java.util.UUID;
@@ -45,6 +47,14 @@ public class ApplicationMapper {
                 request.location(),
                 request.workMode(),
                 request.applicationUrl()
+        );
+    }
+
+    public UpdateApplicationStatusCommand toUpdateStatusCommand(UUID userId, UUID applicationId, UpdateApplicationStatusRequest request){
+        return new UpdateApplicationStatusCommand(
+                userId,
+                applicationId,
+                request.status()
         );
     }
 }

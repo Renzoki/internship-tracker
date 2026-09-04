@@ -3,11 +3,13 @@ package org.tracker.service.impl;
 import org.springframework.stereotype.Service;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
+import org.tracker.exception.InvalidApplicationStatusAssignmentException;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.entities.User;
+import org.tracker.model.request.UpdateApplicationStatusCommand;
 import org.tracker.repository.ApplicationRepository;
 import org.tracker.repository.UserRepository;
 import org.tracker.service.ApplicationService;
@@ -33,8 +35,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application getApplicationById(UUID applicationId, UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = getUser(userId);
 
         return applicationRepository.findByIdAndUser(applicationId, user)
                 .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
@@ -42,8 +43,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application addNewApplication(CreateApplicationCommand command) {
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(() -> new UserNotFoundException(command.userId()));
+        User user = getUser(command.userId());
 
         Application application = new Application(
                 user,
@@ -61,11 +61,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application updateApplicationDetails(UpdateApplicationDetailsCommand command) {
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(() -> new UserNotFoundException(command.userId()));
-
-        Application application = applicationRepository.findById(command.applicationId())
-                .orElseThrow(() -> new ApplicationNotFoundException(command.applicationId()));
+        User user = getUser(command.userId());
+        Application application = getApplication(command.applicationId());
 
         if(!user.getApplicationList().contains(application)){
             throw new ApplicationAccessDeniedException(command.userId(), command.applicationId());
@@ -91,6 +88,36 @@ public class ApplicationServiceImpl implements ApplicationService {
             application.setApplicationUrl(command.applicationUrl());
         }
 
+        application.setUpdatedAt(Instant.now());
         return applicationRepository.save(application);
+    }
+
+    @Override
+    public Application updateApplicationStatus(UpdateApplicationStatusCommand command) {
+        User user = getUser(command.userId());
+        Application application = getApplication(command.applicationId());
+
+        if (!application.getStatus().canTransitionTo(command.status())) {
+            throw new InvalidApplicationStatusAssignmentException(application.getStatus(), command.status());
+        }
+
+        if(!user.getApplicationList().contains(application)){
+            throw new ApplicationAccessDeniedException(command.userId(), command.applicationId());
+        }
+
+        application.setUpdatedAt(Instant.now());
+        application.setStatus(command.status());
+        return applicationRepository.save(application);
+    }
+
+    private User getUser(UUID userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+    }
+
+    private Application getApplication(UUID applicationId){
+        return applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
     }
 }

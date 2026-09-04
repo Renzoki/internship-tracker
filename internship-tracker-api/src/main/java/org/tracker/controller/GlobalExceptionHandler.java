@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(InvalidApplicationStatusAssignmentException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidApplicationStatusAssignmentError(InvalidApplicationStatusAssignmentException ex){
+        ErrorResponse error = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundError(UserNotFoundException ex){
         ErrorResponse error = new ErrorResponse(ex.getMessage());

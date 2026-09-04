@@ -12,6 +12,8 @@ import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.request.CreateApplicationRequest;
 import org.tracker.model.request.UpdateApplicationDetailsRequest;
+import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.request.UpdateApplicationStatusRequest;
 import org.tracker.model.response.ApplicationResponse;
 import org.tracker.service.ApplicationService;
 
@@ -75,6 +77,18 @@ public class ApplicationController {
     ){
         UpdateApplicationDetailsCommand command = mapper.toUpdateDetailsCommand(principal.id(), applicationId, request);
         Application application = applicationService.updateApplicationDetails(command);
+        ApplicationResponse response = mapper.toResponse(application);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{applicationId}/status")
+    public ResponseEntity<ApplicationResponse> updateApplicationStatus(
+            @PathVariable UUID applicationId,
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody UpdateApplicationStatusRequest request
+    ){
+        UpdateApplicationStatusCommand command = mapper.toUpdateStatusCommand(principal.id(), applicationId, request);
+        Application application = applicationService.updateApplicationStatus(command);
         ApplicationResponse response = mapper.toResponse(application);
         return ResponseEntity.ok(response);
     }
