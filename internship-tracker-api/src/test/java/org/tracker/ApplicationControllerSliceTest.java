@@ -15,6 +15,7 @@ import org.tracker.configuration.SecurityConfig;
 import org.tracker.controller.ApplicationController;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
+import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -674,5 +675,62 @@ public class ApplicationControllerSliceTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteApplication_validApplicationAndUserId_returns200() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent());
+
+        verify(applicationService, times(1)).deleteApplicationById(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    public void deleteApplication_invalidUserId_returns404() throws Exception {
+        doThrow(new UserNotFoundException(mockId))
+                .when(applicationService).deleteApplicationById(any(UUID.class), any(UUID.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+
+        verify(applicationService, times(1)).deleteApplicationById(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    public void deleteApplication_invalidApplicationId_returns404() throws Exception {
+        doThrow(new ApplicationNotFoundException(mockId))
+                .when(applicationService).deleteApplicationById(any(UUID.class), any(UUID.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+
+        verify(applicationService, times(1)).deleteApplicationById(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    public void deleteApplication_userDoesNotOwnApplication_returns403() throws Exception {
+        doThrow(new ApplicationAccessDeniedException(mockId, mockId))
+                .when(applicationService).deleteApplicationById(any(UUID.class), any(UUID.class));
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete("/applications/" + mockId)
+                .header("Authorization", "Bearer " + mockToken);
+
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+
+        verify(applicationService, times(1)).deleteApplicationById(any(UUID.class), any(UUID.class));
     }
 }
