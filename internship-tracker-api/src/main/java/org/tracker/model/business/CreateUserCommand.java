@@ -1,6 +1,6 @@
 package org.tracker.model.business;
 
-public record CreateUserCommand( //TODO: Add AuthenticationPrincipal values here
+public record CreateUserCommand(
         String firstName,
         String lastName,
         String email,
