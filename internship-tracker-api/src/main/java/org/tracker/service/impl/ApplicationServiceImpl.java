@@ -5,6 +5,7 @@ import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
 import org.tracker.exception.InvalidApplicationStatusAssignmentException;
 import org.tracker.exception.UserNotFoundException;
+import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
@@ -21,11 +22,13 @@ import java.util.UUID;
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
+    private final ApplicationMapper mapper;
     private final UserRepository userRepository;
 
-    public ApplicationServiceImpl(ApplicationRepository applicationRepository, UserRepository userRepository){
+    public ApplicationServiceImpl(ApplicationRepository applicationRepository, UserRepository userRepository, ApplicationMapper mapper){
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -48,16 +51,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Application addNewApplication(CreateApplicationCommand command) {
         User user = getUser(command.userId());
-
-        Application application = new Application(
-                user,
-                command.companyName(),
-                command.positionTitle(),
-                command.location(),
-                command.workMode(),
-                command.applicationUrl(),
-                command.dateApplied(),
-                Instant.now());
+        Application application = mapper.toNewApplication(user, command);
 
         user.addApplication(application);
         return applicationRepository.save(application);
@@ -72,26 +66,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ApplicationAccessDeniedException(command.userId(), command.applicationId());
         }
 
-        if(command.companyName() != null){
-            application.setCompanyName(command.companyName());
-        }
-
-        if(command.positionTitle() != null){
-            application.setPositionTitle(command.positionTitle());
-        }
-
-        if(command.location() != null){
-            application.setLocation(command.location());
-        }
-
-        if(command.workMode() != null){
-            application.setWorkMode(command.workMode());
-        }
-
-        if(command.applicationUrl() != null){
-            application.setApplicationUrl(command.applicationUrl());
-        }
-
+        application = mapper.toUpdatedApplication(application, command);
         application.setUpdatedAt(Instant.now());
         return applicationRepository.save(application);
     }
@@ -101,12 +76,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         User user = getUser(command.userId());
         Application application = getApplication(command.applicationId());
 
-        if (!application.getStatus().canTransitionTo(command.status())) {
-            throw new InvalidApplicationStatusAssignmentException(application.getStatus(), command.status());
-        }
-
         if(!user.getApplicationList().contains(application)){
             throw new ApplicationAccessDeniedException(command.userId(), command.applicationId());
+        }
+
+        if (!application.getStatus().canTransitionTo(command.status())) {
+            throw new InvalidApplicationStatusAssignmentException(application.getStatus(), command.status());
         }
 
         application.setUpdatedAt(Instant.now());
