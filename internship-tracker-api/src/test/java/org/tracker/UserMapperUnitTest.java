@@ -13,165 +13,137 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.BDDAssertions.within;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 public class UserMapperUnitTest {
+
     private final UserMapper userMapper = new UserMapper();
-    private final UUID mockId1 = UUID.fromString("11111111-1111-1111-111-111111111111");
-    private final User mockUser = new User(mockId1, "Renz","Tabuzo","renzonifico@gmail.com",null, null);
-    private final UserResponse mockUserResponse = new UserResponse(mockId1, "Renz", "Tabuzo", "renzonifico@gmail.com");
+    private final UUID mockId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     @Test
     void toResponse_validUserObject_shouldReturnUserResponse() {
-        UserResponse result = userMapper.toResponse(mockUser);
+        User mockUser = new User(mockId, "Renz", "Tabuzo", "renzonifico@gmail.com", null, null);
+        UserResponse expected = new UserResponse(mockId, "Renz", "Tabuzo", "renzonifico@gmail.com");
 
-        assertThat(result)
-                .usingRecursiveComparison()
-                .isEqualTo(mockUserResponse);
+        UserResponse actual = userMapper.toResponse(mockUser);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
-    void toResponse_nullUserObject_shouldReturnUserResponse() {
-        UserResponse result = userMapper.toResponse(new User());
+    void toResponse_emptyUserObject_shouldReturnEmptyUserResponse() {
+        UserResponse expected = new UserResponse(null, null, null, null);
 
-        assertAll("Check UserResponse shape",
-                () -> assertNull(result.id()),
-                () -> assertNull(result.firstName()),
-                () -> assertNull(result.lastName()),
-                () -> assertNull(result.email())
-        );
+        UserResponse actual = userMapper.toResponse(new User());
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toCreateCommand_validRequestBody_shouldReturnCreateUserCommand() {
-        CreateUserRequest mockRequest = new CreateUserRequest("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
-        CreateUserCommand mockCommand = userMapper.toCreateCommand(mockRequest);
+        CreateUserRequest request = new CreateUserRequest("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
+        CreateUserCommand expected = new CreateUserCommand("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
 
-        assertAll("Check CreateCommand shape",
-                () -> assertEquals("Renz", mockCommand.firstName()),
-                () -> assertEquals("Tabuzo", mockCommand.lastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockCommand.email()),
-                () -> assertEquals("mockPassword", mockCommand.password())
-        );
-    }
+        CreateUserCommand actual = userMapper.toCreateCommand(request);
 
-    @Test
-    void toUserFromCreateCommand_validCommandBody_shouldReturnUser() {
-        CreateUserCommand mockCommand = new CreateUserCommand("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
-        User mockUser = userMapper.toNewUser(mockCommand, "mockPassword");
-
-        assertThat(mockUser.getCreatedAt()).isCloseTo(Instant.now(), within(1, ChronoUnit.SECONDS));
-        assertAll("Check User shape",
-                () -> assertEquals("Renz", mockUser.getFirstName()),
-                () -> assertEquals("Tabuzo", mockUser.getLastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockUser.getEmail()),
-                () -> assertEquals("mockPassword", mockUser.getPasswordHash())
-        );
-    }
-
-    @Test
-    void toUserFromCreateCommand_nullCommandBody_shouldReturnUser() {
-        CreateUserCommand mockCommand = new CreateUserCommand(null, null, null, null);
-        User mockUser = userMapper.toNewUser(mockCommand, null);
-
-        assertAll("Check User shape",
-                () -> assertNull(mockUser.getFirstName()),
-                () -> assertNull(mockUser.getLastName()),
-                () -> assertNull(mockUser.getEmail()),
-                () -> assertNull(mockUser.getPasswordHash())
-        );
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toCreateCommand_nullRequestBody_shouldReturnNullCreateUserCommand() {
-        CreateUserRequest mockRequest = new CreateUserRequest(null, null, null, null);
-        CreateUserCommand mockCommand = userMapper.toCreateCommand(mockRequest);
+        CreateUserRequest request = new CreateUserRequest(null, null, null, null);
+        CreateUserCommand expected = new CreateUserCommand(null, null, null, null);
 
-        assertAll("Check CreateCommand shape",
-                () -> assertNull(mockCommand.firstName()),
-                () -> assertNull(mockCommand.lastName()),
-                () -> assertNull(mockCommand.email()),
-                () -> assertNull(mockCommand.password())
-        );
+        CreateUserCommand actual = userMapper.toCreateCommand(request);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    void toUserFromCreateCommand_validCommandBody_shouldReturnUser() {
+        CreateUserCommand command = new CreateUserCommand("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
+        User expected = new User(null, "Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword", null);
+
+        User actual = userMapper.toNewUser(command, "mockPassword");
+
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
+                .isEqualTo(expected);
+        assertThat(actual.getCreatedAt()).isCloseTo(Instant.now(), within(1, ChronoUnit.SECONDS));
+    }
+
+    @Test
+    void toUserFromCreateCommand_nullCommandBody_shouldReturnUser() {
+        CreateUserCommand command = new CreateUserCommand(null, null, null, null);
+        User expected = new User(null, null, null, null, null, null);
+
+        User actual = userMapper.toNewUser(command, null);
+
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
+                .isEqualTo(expected);
     }
 
     @Test
     void toUpdateCommand_requestBodyHasNoNullFields_shouldReturnUpdateUserCommand() {
-        UpdateUserRequest mockUpdateRequest = new UpdateUserRequest("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
-        UpdateUserCommand mockCommand = userMapper.toUpdateCommand(mockId1, mockUpdateRequest);
+        UpdateUserRequest request = new UpdateUserRequest("Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
+        UpdateUserCommand expected = new UpdateUserCommand(mockId, "Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
 
-        assertAll("Check UpdateCommand shape",
-                () -> assertEquals("Renz", mockCommand.firstName()),
-                () -> assertEquals("Tabuzo", mockCommand.lastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockCommand.email()),
-                () -> assertEquals("mockPassword", mockCommand.password())
-        );
+        UpdateUserCommand actual = userMapper.toUpdateCommand(mockId, request);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toUpdateCommand_hasPartiallyNullRequestBody_shouldReturnUpdateUserCommand() {
-        UpdateUserRequest mockUpdateRequest = new UpdateUserRequest("Renz", null, "renzonifico@gmail.com", null);
-        UpdateUserCommand mockCommand = userMapper.toUpdateCommand(mockId1, mockUpdateRequest);
+        UpdateUserRequest request = new UpdateUserRequest("Renz", null, "renzonifico@gmail.com", null);
+        UpdateUserCommand expected = new UpdateUserCommand(mockId, "Renz", null, "renzonifico@gmail.com", null);
 
-        assertAll("Check UpdateCommand shape",
-                () -> assertEquals("Renz", mockCommand.firstName()),
-                () -> assertNull(mockCommand.lastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockCommand.email()),
-                () -> assertNull(mockCommand.password())
-        );
+        UpdateUserCommand actual = userMapper.toUpdateCommand(mockId, request);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toUpdateCommand_hasNullRequestBody_shouldReturnNullUpdateUserCommand() {
-        UpdateUserRequest mockUpdateRequest = new UpdateUserRequest(null, null, null, null);
-        UpdateUserCommand mockCommand = userMapper.toUpdateCommand(mockId1, mockUpdateRequest);
+        UpdateUserRequest request = new UpdateUserRequest(null, null, null, null);
+        UpdateUserCommand expected = new UpdateUserCommand(mockId, null, null, null, null);
 
-        assertAll("Check UpdateCommand shape",
-                () -> assertNull(mockCommand.firstName()),
-                () -> assertNull(mockCommand.lastName()),
-                () -> assertNull(mockCommand.email()),
-                () -> assertNull(mockCommand.password())
-        );
+        UpdateUserCommand actual = userMapper.toUpdateCommand(mockId, request);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toUserFromUpdateCommand_commandHasNoNullFields_shouldReturnUser() {
-        UpdateUserCommand mockCommand = new UpdateUserCommand(mockId1, "Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
-        User mockUser = userMapper.toUpdatedUser(new User(), mockCommand, "mockPassword");
+        UpdateUserCommand command = new UpdateUserCommand(mockId, "Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword");
+        User expected = new User(null, "Renz", "Tabuzo", "renzonifico@gmail.com", "mockPassword", null);
 
-        assertAll("Check User shape",
-                () -> assertEquals("Renz", mockUser.getFirstName()),
-                () -> assertEquals("Tabuzo", mockUser.getLastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockUser.getEmail()),
-                () -> assertEquals("mockPassword", mockUser.getPasswordHash())
-        );
+        User actual = userMapper.toUpdatedUser(new User(), command, "mockPassword");
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toUserFromUpdateCommand_commandHasPartialNullFields_shouldReturnUser() {
-        UpdateUserCommand mockCommand = new UpdateUserCommand(mockId1, "Renz", null, "renzonifico@gmail.com", null);
-        User mockUser = userMapper.toUpdatedUser(new User(), mockCommand, "mockPassword");
+        UpdateUserCommand command = new UpdateUserCommand(mockId, "Renz", null, "renzonifico@gmail.com", null);
+        User expected = new User(null, "Renz", null, "renzonifico@gmail.com", null, null);
 
-        assertAll("Check User shape",
-                () -> assertEquals("Renz", mockUser.getFirstName()),
-                () -> assertNull(mockUser.getLastName()),
-                () -> assertEquals("renzonifico@gmail.com", mockUser.getEmail()),
-                () -> assertNull(mockUser.getPasswordHash())
-        );
+        User actual = userMapper.toUpdatedUser(new User(), command, "mockPassword");
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     void toUserFromUpdateCommand_commandHasFullNullFields_shouldReturnUser() {
-        UpdateUserCommand mockCommand = new UpdateUserCommand(mockId1, null, null, null, null);
-        User mockUser = userMapper.toUpdatedUser(new User(), mockCommand, null);
+        UpdateUserCommand command = new UpdateUserCommand(mockId, null, null, null, null);
+        User expected = new User(null, null, null, null, null, null);
 
-        assertAll("Check User shape",
-                () -> assertNull(mockUser.getFirstName()),
-                () -> assertNull(mockUser.getLastName()),
-                () -> assertNull(mockUser.getEmail()),
-                () -> assertNull(mockUser.getPasswordHash())
-        );
+        User actual = userMapper.toUpdatedUser(new User(), command, null);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 }
