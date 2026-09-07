@@ -1,0 +1,12 @@
+﻿name: internship_tracker_db
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: internship_tracker_db
+    environment:
+      POSTGRES_DB: trackerDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
