@@ -1,6 +1,7 @@
 package org.tracker.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
 import org.tracker.exception.InvalidApplicationStatusAssignmentException;
@@ -10,7 +11,7 @@ import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.entities.User;
-import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.business.UpdateApplicationStatusCommand;
 import org.tracker.repository.ApplicationRepository;
 import org.tracker.repository.UserRepository;
 import org.tracker.service.ApplicationService;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Validated
 public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ApplicationMapper mapper;
@@ -33,6 +35,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<Application> getAllApplications(UUID userId) {
+        if(!userRepository.existsById(userId)){
+            throw new UserNotFoundException(userId);
+        }
         return applicationRepository.findAllByUserId(userId);
     }
 
