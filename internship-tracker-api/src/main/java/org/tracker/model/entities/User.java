@@ -3,6 +3,7 @@ package org.tracker.model.entities;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -51,6 +52,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
+        this.applicationList = new ArrayList<>();
     }
 
     public UUID getId() {
