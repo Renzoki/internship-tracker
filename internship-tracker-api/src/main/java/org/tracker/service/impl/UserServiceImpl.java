@@ -2,6 +2,7 @@ package org.tracker.service.impl;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.tracker.exception.EmailAlreadyExistsException;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.UserMapper;
@@ -11,10 +12,10 @@ import org.tracker.model.entities.User;
 import org.tracker.repository.UserRepository;
 import org.tracker.service.UserService;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@Validated
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper mapper;
