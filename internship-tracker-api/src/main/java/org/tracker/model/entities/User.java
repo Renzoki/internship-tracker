@@ -35,7 +35,7 @@ public class User {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Application> applicationList;
+    private final List<Application> applicationList = new ArrayList<>();
 
     public User() {}
 
@@ -52,7 +52,6 @@ public class User {
         this.passwordHash = passwordHash;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
-        this.applicationList = new ArrayList<>();
     }
 
     public UUID getId() {
