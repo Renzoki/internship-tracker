@@ -22,7 +22,7 @@ import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
 import org.tracker.model.enums.ApplicationStatus;
 import org.tracker.model.enums.WorkMode;
-import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.business.UpdateApplicationStatusCommand;
 import org.tracker.service.ApplicationService;
 import org.tracker.service.JwtService;
 

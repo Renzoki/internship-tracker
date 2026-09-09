@@ -7,7 +7,7 @@ import org.tracker.model.entities.Application;
 import org.tracker.model.entities.User;
 import org.tracker.model.request.CreateApplicationRequest;
 import org.tracker.model.request.UpdateApplicationDetailsRequest;
-import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.business.UpdateApplicationStatusCommand;
 import org.tracker.model.request.UpdateApplicationStatusRequest;
 import org.tracker.model.response.ApplicationResponse;
 

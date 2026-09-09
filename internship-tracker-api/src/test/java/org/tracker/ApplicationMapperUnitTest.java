@@ -10,7 +10,7 @@ import org.tracker.model.enums.ApplicationStatus;
 import org.tracker.model.enums.WorkMode;
 import org.tracker.model.request.CreateApplicationRequest;
 import org.tracker.model.request.UpdateApplicationDetailsRequest;
-import org.tracker.model.request.UpdateApplicationStatusCommand;
+import org.tracker.model.business.UpdateApplicationStatusCommand;
 import org.tracker.model.request.UpdateApplicationStatusRequest;
 import org.tracker.model.response.ApplicationResponse;
 
@@ -188,7 +188,7 @@ public class ApplicationMapperUnitTest {
     void toUserFromUpdateCommand_commandHasNoNullFields_shouldReturnUpdatedApplication() {
         Application initialApp = new Application(
                 mockAppId, mockUser, "Old Company", "Junior Dev",
-                "On-Site", WorkMode.ONLINE, "https://old.com", mockDate, Instant.now()
+                "On-Site", WorkMode.ONSITE, "https://old.com", mockDate, Instant.now()
         );
 
         UpdateApplicationDetailsCommand command = new UpdateApplicationDetailsCommand(
@@ -213,7 +213,7 @@ public class ApplicationMapperUnitTest {
     void toUserFromUpdateCommand_commandHasPartialNullFields_shouldReturnUpdatedApplication() {
         Application initialApp = new Application(
                 mockAppId, mockUser, "Old Company", "Junior Dev",
-                "On-Site", WorkMode.ONLINE, "https://old.com", mockDate, Instant.now()
+                "On-Site", WorkMode.ONSITE, "https://old.com", mockDate, Instant.now()
         );
 
         UpdateApplicationDetailsCommand command = new UpdateApplicationDetailsCommand(
@@ -237,7 +237,7 @@ public class ApplicationMapperUnitTest {
     void toUserFromUpdateCommand_commandHasFullNullFields_shouldReturnUnmodifiedApplication() {
         Application initialApp = new Application(
                 mockAppId, mockUser, "Old Company", "Junior Dev",
-                "On-Site", WorkMode.ONLINE, "https://old.com", mockDate, Instant.now()
+                "On-Site", WorkMode.ONSITE, "https://old.com", mockDate, Instant.now()
         );
 
         UpdateApplicationDetailsCommand command = new UpdateApplicationDetailsCommand(
@@ -246,7 +246,7 @@ public class ApplicationMapperUnitTest {
 
         Application expected = new Application(
                 mockAppId, mockUser, "Old Company", "Junior Dev",
-                "On-Site", WorkMode.ONLINE, "https://old.com", mockDate, Instant.now()
+                "On-Site", WorkMode.ONSITE, "https://old.com", mockDate, Instant.now()
         );
 
         Application actual = applicationMapper.toUpdatedApplication(initialApp, command);
