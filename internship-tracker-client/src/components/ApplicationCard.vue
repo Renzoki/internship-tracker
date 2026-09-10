@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import StatusDropdown from './StatusDropdown.vue'
 
 const props = defineProps({
   application: {
@@ -9,6 +10,13 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['status-change', 'delete'])
+
+function handleStatusChange(newStatus) {
+  emit('status-change', {
+    id: props.application.id,
+    newStatus
+  })
+}
 
 const formattedDate = computed(() => {
   if (!props.application.dateApplied) return '—'
@@ -22,22 +30,16 @@ const formattedDate = computed(() => {
 
 const statusClass = computed(() => {
   const status = props.application.status?.toUpperCase() || ''
-  if (status.includes('OFFER')) return 'status-offered'
-  if (status.includes('INTERVIEW')) return 'status-interview'
-  if (status.includes('REJECT')) return 'status-rejected'
+  if (status === 'IN_PROGRESS' || status.includes('INTERVIEW')) return 'status-in-progress'
+  if (status === 'WAITING_TO_HEAR_BACK') return 'status-waiting'
+  if (status === 'HIRED' || status.includes('OFFER')) return 'status-hired'
+  if (status === 'REJECTED' || status.includes('REJECT')) return 'status-rejected'
   return 'status-applied'
 })
 
 const formatWorkMode = (mode) => {
   if (!mode) return ''
   return mode.replace('_', ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase())
-}
-
-function handleStatusChange(event) {
-  emit('status-change', {
-    id: props.application.id,
-    newStatus: event.target.value
-  })
 }
 </script>
 
@@ -65,13 +67,6 @@ function handleStatusChange(event) {
       {{ formattedDate }}
     </div>
 
-    <div class="col col-status">
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        {{ application.status }}
-      </div>
-    </div>
-
     <div class="col col-link">
       <a
         v-if="application.applicationUrl"
@@ -85,18 +80,14 @@ function handleStatusChange(event) {
       <span v-else class="no-link">—</span>
     </div>
 
-    <div class="col col-actions">
-      <select
-        :value="application.status"
+    <div class="col col-status">
+      <StatusDropdown
+        :status="application.status"
         @change="handleStatusChange"
-        class="status-select"
-      >
-        <option value="APPLIED">Applied</option>
-        <option value="INTERVIEWING">Interviewing</option>
-        <option value="OFFERED">Offered</option>
-        <option value="REJECTED">Rejected</option>
-      </select>
+      />
+    </div>
 
+    <div class="col col-actions">
       <button @click="emit('delete', application.id)" class="btn-delete" title="Delete application" aria-label="Delete application">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 6h18"/>
@@ -113,7 +104,7 @@ function handleStatusChange(event) {
 .table-row {
   position: relative;
   display: grid;
-  grid-template-columns: 2.2fr 1.6fr 1.1fr 1.3fr 1fr 1.4fr;
+  grid-template-columns: 2.2fr 1.6fr 1.1fr 1fr 1.3fr 40px;
   align-items: center;
   gap: 1rem;
   padding: 1.05rem 1.25rem 1.05rem 1.5rem;
@@ -136,10 +127,11 @@ function handleStatusChange(event) {
   opacity: 0.6;
 }
 
-.status-applied .row-accent { color: var(--status-blue); }
-.status-interview .row-accent { color: var(--status-yellow); }
-.status-offered .row-accent { color: var(--status-green); }
-.status-rejected .row-accent { color: var(--status-red); }
+.status-applied .row-accent { color: var(--status-blue, #3b82f6); }
+.status-in-progress .row-accent { color: var(--status-yellow, #eab308); }
+.status-waiting .row-accent { color: #f97316; }
+.status-hired .row-accent { color: #10b981; }
+.status-rejected .row-accent { color: var(--status-red, #ef4444); }
 
 .col {
   display: flex;
@@ -199,45 +191,6 @@ function handleStatusChange(event) {
   color: var(--text-secondary);
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.3rem 0.7rem;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-  flex-shrink: 0;
-}
-
-.status-applied .status-pill {
-  background: color-mix(in srgb, var(--status-blue) 14%, transparent);
-  color: var(--status-blue);
-}
-
-.status-interview .status-pill {
-  background: color-mix(in srgb, var(--status-yellow) 14%, transparent);
-  color: var(--status-yellow);
-}
-
-.status-offered .status-pill {
-  background: color-mix(in srgb, var(--status-green) 14%, transparent);
-  color: var(--status-green);
-}
-
-.status-rejected .status-pill {
-  background: color-mix(in srgb, var(--status-red) 14%, transparent);
-  color: var(--status-red);
-}
-
 .link-external {
   color: var(--accent);
   text-decoration: none;
@@ -256,26 +209,7 @@ function handleStatusChange(event) {
 }
 
 .col-actions {
-  gap: 0.6rem;
   justify-content: flex-end;
-}
-
-.status-select {
-  background-color: var(--border-softer);
-  border: 1px solid var(--border-soft);
-  color: var(--text-primary);
-  padding: 0.4rem 0.55rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  min-width: 0;
-}
-
-.status-select:hover,
-.status-select:focus {
-  border-color: var(--accent);
 }
 
 .btn-delete {
@@ -299,25 +233,27 @@ function handleStatusChange(event) {
 }
 
 .btn-delete:hover {
-  color: var(--status-red);
-  background: color-mix(in srgb, var(--status-red) 10%, transparent);
+  color: var(--status-red, #ef4444);
+  background: color-mix(in srgb, var(--status-red, #ef4444) 10%, transparent);
 }
 
 @media (max-width: 880px) {
   .table-row {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
+    align-items: flex-start;
+    gap: 0.6rem;
     padding: 1.1rem 1.1rem 1.1rem 1.5rem;
   }
 
   .col {
     width: 100%;
+    justify-content: flex-start;
   }
 
   .col-company {
     order: 1;
+    padding-right: 2.5rem;
   }
 
   .col-status {
@@ -337,8 +273,9 @@ function handleStatusChange(event) {
   }
 
   .col-date::before {
-    content: 'Applied ';
+    content: 'Applied: ';
     color: var(--text-faint);
+    margin-right: 0.25rem;
   }
 
   .col-link {
@@ -346,61 +283,13 @@ function handleStatusChange(event) {
   }
 
   .col-actions {
-    order: 6;
-    justify-content: space-between;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border-softer);
-  }
-
-  .status-select {
-    flex: 1;
-  }
-}
-
-@media (max-width: 1100px) {
-  .table-row {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    padding: 1.1rem 1.1rem 1.1rem 1.5rem;
-  }
-
-  .col {
-    width: 100%;
-  }
-
-  .col-company { order: 1; }
-  .col-status { order: 2; }
-
-  .col-location {
-    order: 3;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .col-date {
-    order: 4;
-    color: var(--text-muted);
-  }
-
-  .col-date::before {
-    content: 'Applied ';
-    color: var(--text-faint);
-  }
-
-  .col-link { order: 5; }
-
-  .col-actions {
-    order: 6;
-    justify-content: space-between;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border-softer);
-  }
-
-  .status-select {
-    flex: 1;
+    order: unset;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: auto;
+    padding-top: 0;
+    border-top: none;
   }
 }
 
