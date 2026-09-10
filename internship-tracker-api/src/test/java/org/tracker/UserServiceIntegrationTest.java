@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -26,13 +27,13 @@ import org.tracker.service.impl.UserServiceImpl;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({UserServiceImpl.class, UserMapper.class, BCryptPasswordEncoder.class, ValidationAutoConfiguration.class})
+@Import({UserServiceImpl.class, UserMapper.class, BCryptPasswordEncoder.class, ValidationAutoConfiguration.class, TestEntityManager.class})
 public class UserServiceIntegrationTest {
 
     @Container
@@ -48,6 +49,9 @@ public class UserServiceIntegrationTest {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TestEntityManager entityManager;
+
     private User user1;
     private User user2;
 
@@ -55,6 +59,7 @@ public class UserServiceIntegrationTest {
     void setUp() {
         user1 = userRepository.save(buildUser("Vincent", "Tabuzo", "renzonifico@gmail.com"));
         user2 = userRepository.save(buildUser("Nicole", "Ortega", "noortega@up.edu.ph"));
+        clearCache();
     }
 
     private User buildUser(String firstName, String lastName, String email) {
@@ -92,10 +97,13 @@ public class UserServiceIntegrationTest {
         CreateUserCommand command = new CreateUserCommand("John", "Smith", "johnSmith@gmail.com", "password123");
         User newUser = userService.createNewUser(command);
 
+        clearCache();
+
         User result = userRepository.findById(newUser.getId()).orElseThrow();
 
         assertThat(result)
                 .usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
                 .isEqualTo(newUser);
 
         assertThat(passwordEncoder.matches("password123", result.getPasswordHash())).isTrue();
@@ -120,12 +128,16 @@ public class UserServiceIntegrationTest {
     @Test
     public void updateExistingUser_validUpdateCommand_shouldReturnUser() {
         UpdateUserCommand command = new UpdateUserCommand(user1.getId(), "Jepoy", "Dizon", "jepoyDizon@gmail.com", "12345678910");
-        User updatedUser = userService.updateExistingUser(command);
+        userService.updateExistingUser(command);
+
+        clearCache();
+
         User result = userRepository.findById(user1.getId()).orElseThrow();
 
-        assertThat(result)
-                .usingRecursiveComparison()
-                .isEqualTo(updatedUser);
+        assertThat(result.getFirstName()).isEqualTo("Jepoy");
+        assertThat(result.getLastName()).isEqualTo("Dizon");
+        assertThat(result.getEmail()).isEqualTo("jepoyDizon@gmail.com");
+        assertThat(passwordEncoder.matches("12345678910", result.getPasswordHash())).isTrue();
     }
 
     @Test
@@ -177,6 +189,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void deleteUserById_userExists_shouldReturnNoContent() {
         userService.deleteUserById(user1.getId());
+        clearCache();
         assertThat(userRepository.findById(user1.getId())).isEmpty();
     }
 
@@ -187,5 +200,10 @@ public class UserServiceIntegrationTest {
         assertThatThrownBy(() -> userService.deleteUserById(nonExistentId))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("Cannot find user with id '" + nonExistentId + "'.");
+    }
+
+    private void clearCache() {
+        entityManager.flush();
+        entityManager.clear();
     }
 }
