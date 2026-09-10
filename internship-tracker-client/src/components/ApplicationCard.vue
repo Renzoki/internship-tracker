@@ -117,12 +117,12 @@ function handleStatusChange(event) {
   align-items: center;
   gap: 1rem;
   padding: 1.05rem 1.25rem 1.05rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-softer);
   transition: background 0.15s ease;
 }
 
 .table-row:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--border-softer);
 }
 
 .row-accent {
@@ -133,13 +133,13 @@ function handleStatusChange(event) {
   width: 3px;
   border-radius: 2px;
   background: currentColor;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
-.status-applied .row-accent { color: #60a5fa; }
-.status-interview .row-accent { color: #fbbf24; }
-.status-offered .row-accent { color: #34d399; }
-.status-rejected .row-accent { color: #f87171; }
+.status-applied .row-accent { color: var(--status-blue); }
+.status-interview .row-accent { color: var(--status-yellow); }
+.status-offered .row-accent { color: var(--status-green); }
+.status-rejected .row-accent { color: var(--status-red); }
 
 .col {
   display: flex;
@@ -147,7 +147,6 @@ function handleStatusChange(event) {
   min-width: 0;
 }
 
-/* Company & role */
 .col-company {
   flex-direction: column;
   align-items: flex-start;
@@ -157,15 +156,14 @@ function handleStatusChange(event) {
 .company-name {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .position-title {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
-/* Location */
 .col-location {
   flex-direction: column;
   align-items: flex-start;
@@ -177,32 +175,30 @@ function handleStatusChange(event) {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.82rem;
-  color: #cbd5e1;
+  color: var(--text-primary);
 }
 
 .icon-pin {
   width: 13px;
   height: 13px;
-  stroke: #64748b;
+  stroke: var(--text-muted);
   flex-shrink: 0;
 }
 
 .badge-workmode {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--border-softer);
+  border: 1px solid var(--border-soft);
   padding: 0.1rem 0.5rem;
   border-radius: 20px;
   font-size: 0.68rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
-/* Date */
 .col-date {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
-/* Status */
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -221,27 +217,27 @@ function handleStatusChange(event) {
 }
 
 .status-applied .status-pill {
-  background: rgba(96, 165, 250, 0.12);
-  color: #60a5fa;
+  background: color-mix(in srgb, var(--status-blue) 14%, transparent);
+  color: var(--status-blue);
 }
 
 .status-interview .status-pill {
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
+  background: color-mix(in srgb, var(--status-yellow) 14%, transparent);
+  color: var(--status-yellow);
 }
 
 .status-offered .status-pill {
-  background: rgba(52, 211, 153, 0.12);
-  color: #34d399;
+  background: color-mix(in srgb, var(--status-green) 14%, transparent);
+  color: var(--status-green);
 }
 
 .status-rejected .status-pill {
-  background: rgba(248, 113, 113, 0.12);
-  color: #f87171;
+  background: color-mix(in srgb, var(--status-red) 14%, transparent);
+  color: var(--status-red);
 }
 
 .link-external {
-  color: #d4a24c;
+  color: var(--accent);
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 500;
@@ -252,20 +248,19 @@ function handleStatusChange(event) {
 }
 
 .no-link {
-  color: #475569;
+  color: var(--text-faint);
   font-size: 0.8rem;
 }
 
-/* Actions */
 .col-actions {
   gap: 0.6rem;
   justify-content: flex-end;
 }
 
 .status-select {
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
+  background-color: var(--border-softer);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
   padding: 0.4rem 0.55rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -276,7 +271,7 @@ function handleStatusChange(event) {
 
 .status-select:hover,
 .status-select:focus {
-  border-color: rgba(66, 184, 131, 0.5);
+  border-color: var(--accent);
 }
 
 .btn-delete {
@@ -289,7 +284,7 @@ function handleStatusChange(event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-muted);
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
@@ -300,7 +295,7 @@ function handleStatusChange(event) {
 }
 
 .btn-delete:hover {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.1);
+  color: var(--status-red);
+  background: color-mix(in srgb, var(--status-red) 10%, transparent);
 }
 </style>

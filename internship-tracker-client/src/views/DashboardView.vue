@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ApplicationCard from '../components/ApplicationCard.vue'
+import { getStoredTheme, applyTheme, nextTheme } from '../theme.js'
 
 const router = useRouter()
 
@@ -9,6 +10,7 @@ const applications = ref([])
 const isLoading = ref(true)
 const errorMessage = ref('')
 const userName = ref('')
+const currentTheme = ref(getStoredTheme())
 
 function loadUserProfile() {
   const token = localStorage.getItem('jwt_token')
@@ -124,6 +126,12 @@ function handleLogout() {
   router.push('/login')
 }
 
+function handleThemeToggle() {
+  const next = nextTheme(currentTheme.value)
+  applyTheme(next)
+  currentTheme.value = next
+}
+
 onMounted(() => {
   loadUserProfile()
   fetchApplications()
@@ -153,6 +161,15 @@ onMounted(() => {
           <div class="avatar-circle">{{ userInitial }}</div>
           <span class="account-name">{{ userName }}</span>
         </div>
+
+        <button @click="handleThemeToggle" class="btn-theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 3a6 6 0 0 0 0 12 6 6 0 0 1 0 6 9 9 0 0 1 0-18z" fill="currentColor" stroke="none" />
+          </svg>
+          Change theme
+        </button>
+
         <button @click="handleLogout" class="btn-logout">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -224,7 +241,6 @@ onMounted(() => {
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 
-/* Sidebar */
 .sidebar {
   position: fixed;
   top: 0;
@@ -234,8 +250,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.02);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--border-softer);
+  border-right: 1px solid var(--border-softer);
   padding: 1.75rem 1.25rem;
 }
 
@@ -248,14 +264,14 @@ onMounted(() => {
 .brand-wordmark {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0;
   padding-left: 0.5rem;
   letter-spacing: -0.4px;
 }
 
 .brand-wordmark .accent {
-  color: #d4a24c;
+  color: var(--accent);
 }
 
 .side-nav {
@@ -270,7 +286,7 @@ onMounted(() => {
   gap: 0.7rem;
   padding: 0.65rem 0.75rem;
   border-radius: 8px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.88rem;
   font-weight: 500;
   text-decoration: none;
@@ -284,22 +300,22 @@ onMounted(() => {
 }
 
 .nav-item:hover {
-  color: #f1f5f9;
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  background: var(--border-softer);
 }
 
 .nav-item.is-active {
-  color: #f8fafc;
-  background: rgba(212, 162, 76, 0.1);
-  box-shadow: inset 2px 0 0 #d4a24c;
+  color: var(--text-primary);
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .sidebar-bottom {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.6rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--border-softer);
 }
 
 .account-row {
@@ -307,15 +323,16 @@ onMounted(() => {
   align-items: center;
   gap: 0.65rem;
   padding: 0 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .avatar-circle {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(212, 162, 76, 0.15);
-  border: 1px solid rgba(212, 162, 76, 0.4);
-  color: #d4a24c;
+  background: var(--accent-soft-strong);
+  border: 1px solid var(--accent-soft-strong);
+  color: var(--accent);
   font-weight: 700;
   font-size: 0.82rem;
   display: flex;
@@ -325,7 +342,7 @@ onMounted(() => {
 }
 
 .account-name {
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 0.85rem;
   font-weight: 500;
   overflow: hidden;
@@ -333,13 +350,14 @@ onMounted(() => {
   white-space: nowrap;
 }
 
+.btn-theme,
 .btn-logout {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-soft);
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   font-size: 0.83rem;
@@ -349,18 +367,19 @@ onMounted(() => {
   font-family: inherit;
 }
 
+.btn-theme svg,
 .btn-logout svg {
   width: 15px;
   height: 15px;
 }
 
+.btn-theme:hover,
 .btn-logout:hover {
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  border-color: var(--border-soft);
+  background: var(--border-softer);
 }
 
-/* Main content */
 .content {
   flex: 1;
   margin-left: 248px;
@@ -374,7 +393,7 @@ onMounted(() => {
 }
 
 .table-section-title {
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -386,9 +405,9 @@ onMounted(() => {
   grid-template-columns: 2.2fr 1.6fr 1.1fr 1.3fr 1fr 1.4fr;
   gap: 1rem;
   padding: 0 1.25rem 0.7rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-soft);
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
@@ -398,9 +417,9 @@ onMounted(() => {
 }
 
 .error-banner {
-  background-color: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
   padding: 0.8rem 1.1rem;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -410,15 +429,15 @@ onMounted(() => {
 .loading-state {
   text-align: center;
   padding: 5rem 0;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid rgba(212, 162, 76, 0.2);
-  border-top-color: #d4a24c;
+  border: 3px solid var(--accent-soft);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -436,19 +455,19 @@ onMounted(() => {
 .empty-icon {
   width: 40px;
   height: 40px;
-  color: #475569;
+  color: var(--text-faint);
   margin-bottom: 1rem;
 }
 
 .empty-title {
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: 1.05rem;
   font-weight: 600;
   margin: 0 0 0.4rem 0;
 }
 
 .empty-sub {
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0;
   max-width: 320px;

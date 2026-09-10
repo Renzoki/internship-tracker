@@ -111,9 +111,9 @@ async function handleSignUp() {
 
 <style scoped>
 .card-form {
-  background: rgba(30, 41, 59, 0.6);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 2.5rem;
   width: 100%;
@@ -124,12 +124,12 @@ async function handleSignUp() {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   letter-spacing: 2px;
-  color: #42b883;
+  color: var(--tag-color);
   font-weight: 700;
 }
 
 h2 {
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0.5rem 0 1.5rem 0;
   font-size: 1.6rem;
   font-weight: 700;
@@ -137,9 +137,9 @@ h2 {
 }
 
 .error-banner {
-  background-color: rgba(239, 68, 68, 0.15);
-  border: 1px solid #ef4444;
-  color: #fca5a5;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-size: 0.8rem;
@@ -159,14 +159,14 @@ form { display: flex; flex-direction: column; gap: 1.25rem; }
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
   letter-spacing: 1px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 input {
-  background-color: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background-color: var(--bg-grad-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
   padding: 0.8rem 1rem;
   border-radius: 8px;
   font-family: inherit;
@@ -176,12 +176,12 @@ input {
   width: 100%;
   box-sizing: border-box;
 }
-input:focus { border-color: #42b883; }
+input:focus { border-color: var(--accent); }
 
 .btn-submit {
   margin-top: 0.5rem;
-  background-color: #42b883;
-  color: #0f172a;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   padding: 0.85rem;
   border-radius: 8px;
@@ -192,16 +192,16 @@ input:focus { border-color: #42b883; }
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
-.btn-submit:hover { background-color: #33a06f; }
+.btn-submit:hover { background-color: var(--accent-hover); }
 
 .back-link {
   display: block;
   text-align: center;
   margin-top: 1.5rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 500;
 }
-.back-link:hover { color: #ffffff; }
+.back-link:hover { color: var(--text-primary); }
 </style>

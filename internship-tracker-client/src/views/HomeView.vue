@@ -35,7 +35,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
   letter-spacing: 2px;
-  color: #42b883;
+  color: var(--tag-color);
   font-weight: 700;
   display: inline-block;
   margin-bottom: 0.75rem;
@@ -44,19 +44,19 @@
 .main-title {
   font-size: 4.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -1.5px;
   line-height: 1;
 }
 
 .main-title .accent {
-  color: #42b883;
+  color: var(--accent);
 }
 
 .subtitle {
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-top: 1rem;
   font-weight: 500;
 }
@@ -70,8 +70,8 @@
 }
 
 .btn-box-vue {
-  background-color: #42b883;
-  color: #0f172a;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
   padding: 0.85rem 2rem;
   border-radius: 8px;
   text-decoration: none;
@@ -86,13 +86,13 @@
 }
 
 .btn-box-vue:hover {
-  background-color: #33a06f;
+  background-color: var(--accent-hover);
   transform: translateY(-1px);
 }
 
 .btn-outline-vue {
   background-color: transparent;
-  color: #42b883;
+  color: var(--accent);
   padding: 0.85rem 2rem;
   border-radius: 8px;
   text-decoration: none;
@@ -103,11 +103,11 @@
   max-width: 320px;
   box-sizing: border-box;
   transition: all 0.15s ease;
-  border: 1px solid #42b883;
+  border: 1px solid var(--accent);
 }
 
 .btn-outline-vue:hover {
-  background-color: rgba(66, 184, 131, 0.1);
+  background-color: var(--accent-soft);
   transform: translateY(-1px);
 }
 </style>
