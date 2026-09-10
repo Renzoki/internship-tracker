@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import GridBackground from '../components/GridBackground.vue'
 
 const router = useRouter()
 
@@ -46,6 +47,8 @@ async function handleLogin() {
 </script>
 
 <template>
+  <GridBackground />
+
   <div class="card-form">
     <button @click="goHome" class="btn-back" type="button" aria-label="Back to home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -102,6 +105,7 @@ async function handleLogin() {
   padding: 2.5rem;
   width: 100%;
   max-width: 440px;
+  z-index: 1;
 }
 
 .btn-back {

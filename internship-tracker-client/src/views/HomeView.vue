@@ -1,7 +1,10 @@
 <script setup>
+import GridBackground from '../components/GridBackground.vue'
 </script>
 
 <template>
+  <GridBackground />
+
   <div class="wrapper">
     <header class="brand-hero">
       <span class="brand-badge">INTERNSHIP TRACKER</span>
@@ -25,6 +28,8 @@
   width: 100%;
   margin: 0 auto;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .brand-hero {

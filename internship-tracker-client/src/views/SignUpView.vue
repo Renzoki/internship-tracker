@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import GridBackground from '../components/GridBackground.vue'
 
 const router = useRouter()
 
@@ -47,6 +48,8 @@ async function handleSignUp() {
 </script>
 
 <template>
+  <GridBackground />
+
   <div class="card-form">
     <div class="header">
       <span class="tag">INTERNSHIP TRACKER</span>
@@ -118,6 +121,7 @@ async function handleSignUp() {
   padding: 2.5rem;
   width: 100%;
   max-width: 440px;
+  z-index: 1;
 }
 
 .tag {

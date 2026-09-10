@@ -12,6 +12,7 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "animejs": "^3.2.2",
     "vue": "^3.5.40",
     "vue-router": "^5.2.0"
   },
