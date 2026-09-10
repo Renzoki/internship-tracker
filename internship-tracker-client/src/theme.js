@@ -1,4 +1,4 @@
-export const themes = ['gruvbox', 'nord']
+export const themes = ['gruvbox', 'mint']
 
 export function getStoredTheme() {
   return localStorage.getItem('theme') || 'gruvbox'
