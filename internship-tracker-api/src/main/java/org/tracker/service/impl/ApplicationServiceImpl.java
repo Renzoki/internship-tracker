@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
-import org.tracker.exception.InvalidApplicationStatusAssignmentException;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
@@ -83,10 +82,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if(!user.getApplicationList().contains(application)){
             throw new ApplicationAccessDeniedException(command.userId(), command.applicationId());
-        }
-
-        if (!application.getStatus().canTransitionTo(command.status())) {
-            throw new InvalidApplicationStatusAssignmentException(application.getStatus(), command.status());
         }
 
         application.setUpdatedAt(Instant.now());

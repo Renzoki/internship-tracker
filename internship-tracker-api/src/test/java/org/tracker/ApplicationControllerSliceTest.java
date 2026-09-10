@@ -565,14 +565,14 @@ public class ApplicationControllerSliceTest {
     public void updateApplicationStatus_validRequestBody_returns200() throws Exception {
         Application mockApplication = new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
                 WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null);
-        mockApplication.setStatus(ApplicationStatus.FOR_INTERVIEW);
+        mockApplication.setStatus(ApplicationStatus.IN_PROGRESS);
 
         when(applicationService.updateApplicationStatus(any(UpdateApplicationStatusCommand.class)))
                 .thenReturn(mockApplication);
 
         String requestBody = """
             {
-                "status": "FOR_INTERVIEW"
+                "status": "IN_PROGRESS"
             }
         """;
 
@@ -584,7 +584,7 @@ public class ApplicationControllerSliceTest {
             "location": "Makati",
             "workMode": "HYBRID",
             "applicationUrl": "%s",
-            "status": "FOR_INTERVIEW",
+            "status": "IN_PROGRESS",
             "dateApplied": "2004-02-14"
         }
         """.formatted(mockId, mockUrl);
@@ -609,7 +609,7 @@ public class ApplicationControllerSliceTest {
 
         String requestBody = """
             {
-                "status": "FOR_INTERVIEW"
+                "status": "IN_PROGRESS"
             }
         """;
 

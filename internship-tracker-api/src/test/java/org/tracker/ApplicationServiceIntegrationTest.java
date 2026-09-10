@@ -16,7 +16,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
-import org.tracker.exception.InvalidApplicationStatusAssignmentException;
 import org.tracker.exception.UserNotFoundException;
 import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
@@ -234,7 +233,7 @@ public class ApplicationServiceIntegrationTest {
 
     @Test
     public void updateApplicationStatus_validUpdateStatusCommand_shouldReturnApplication() {
-        UpdateApplicationStatusCommand command = new UpdateApplicationStatusCommand(user1.getId(), application1.getId(), ApplicationStatus.FOR_INTERVIEW);
+        UpdateApplicationStatusCommand command = new UpdateApplicationStatusCommand(user1.getId(), application1.getId(), ApplicationStatus.IN_PROGRESS);
 
         Application application = applicationService.updateApplicationStatus(command);
         clearCache();
@@ -255,15 +254,6 @@ public class ApplicationServiceIntegrationTest {
         assertThatThrownBy(() -> applicationService.updateApplicationStatus(command))
                 .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Application status cannot be null");
-    }
-
-    @Test
-    public void updateApplicationStatus_invalidApplicationStatusProgression_shouldThrowInvalidApplicationStatusAssignmentException() {
-        UpdateApplicationStatusCommand command = new UpdateApplicationStatusCommand(user1.getId(), application1.getId(), ApplicationStatus.INTERVIEW_COMPLETED);
-
-        assertThatThrownBy(() -> applicationService.updateApplicationStatus(command))
-                .isInstanceOf(InvalidApplicationStatusAssignmentException.class)
-                .hasMessageContaining("Cannot go from '" + application1.getStatus() + "' status to '" + ApplicationStatus.INTERVIEW_COMPLETED + "' status.");
     }
 
     @Test

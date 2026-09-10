@@ -166,8 +166,8 @@ public class ApplicationMapperUnitTest {
 
     @Test
     void toUpdateStatusCommand_validRequestBody_shouldReturnUpdateApplicationStatusCommand() {
-        UpdateApplicationStatusRequest request = new UpdateApplicationStatusRequest(ApplicationStatus.FOR_INTERVIEW);
-        UpdateApplicationStatusCommand expected = new UpdateApplicationStatusCommand(mockUserId, mockAppId, ApplicationStatus.FOR_INTERVIEW);
+        UpdateApplicationStatusRequest request = new UpdateApplicationStatusRequest(ApplicationStatus.IN_PROGRESS);
+        UpdateApplicationStatusCommand expected = new UpdateApplicationStatusCommand(mockUserId, mockAppId, ApplicationStatus.IN_PROGRESS);
 
         UpdateApplicationStatusCommand actual = applicationMapper.toUpdateStatusCommand(mockUserId, mockAppId, request);
 
