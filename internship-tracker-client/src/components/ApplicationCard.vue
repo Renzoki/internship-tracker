@@ -207,6 +207,7 @@ function handleStatusChange(event) {
   font-weight: 600;
   padding: 0.3rem 0.7rem;
   border-radius: 20px;
+  white-space: nowrap;
 }
 
 .status-dot {
@@ -214,6 +215,7 @@ function handleStatusChange(event) {
   height: 6px;
   border-radius: 50%;
   background-color: currentColor;
+  flex-shrink: 0;
 }
 
 .status-applied .status-pill {
@@ -241,6 +243,7 @@ function handleStatusChange(event) {
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .link-external:hover {
@@ -267,6 +270,7 @@ function handleStatusChange(event) {
   outline: none;
   cursor: pointer;
   transition: border-color 0.15s ease;
+  min-width: 0;
 }
 
 .status-select:hover,
@@ -297,5 +301,112 @@ function handleStatusChange(event) {
 .btn-delete:hover {
   color: var(--status-red);
   background: color-mix(in srgb, var(--status-red) 10%, transparent);
+}
+
+@media (max-width: 880px) {
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1.1rem 1.1rem 1.1rem 1.5rem;
+  }
+
+  .col {
+    width: 100%;
+  }
+
+  .col-company {
+    order: 1;
+  }
+
+  .col-status {
+    order: 2;
+  }
+
+  .col-location {
+    order: 3;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .col-date {
+    order: 4;
+    color: var(--text-muted);
+  }
+
+  .col-date::before {
+    content: 'Applied ';
+    color: var(--text-faint);
+  }
+
+  .col-link {
+    order: 5;
+  }
+
+  .col-actions {
+    order: 6;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-softer);
+  }
+
+  .status-select {
+    flex: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1.1rem 1.1rem 1.1rem 1.5rem;
+  }
+
+  .col {
+    width: 100%;
+  }
+
+  .col-company { order: 1; }
+  .col-status { order: 2; }
+
+  .col-location {
+    order: 3;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .col-date {
+    order: 4;
+    color: var(--text-muted);
+  }
+
+  .col-date::before {
+    content: 'Applied ';
+    color: var(--text-faint);
+  }
+
+  .col-link { order: 5; }
+
+  .col-actions {
+    order: 6;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-softer);
+  }
+
+  .status-select {
+    flex: 1;
+  }
+}
+
+@media (max-width: 380px) {
+  .table-row {
+    padding: 1rem 0.85rem 1rem 1.25rem;
+  }
 }
 </style>

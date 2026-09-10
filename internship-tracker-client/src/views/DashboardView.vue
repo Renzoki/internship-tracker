@@ -145,13 +145,13 @@ onMounted(() => {
         <h1 class="brand-wordmark">Next<span class="accent">Step</span></h1>
 
         <nav class="side-nav">
-          <a class="nav-item is-active" href="#">
+          <a class="nav-item is-active" href="#" title="Applications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <rect x="3" y="7" width="18" height="13" rx="2" />
               <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               <path d="M3 12h18" />
             </svg>
-            Applications
+            <span>Applications</span>
           </a>
         </nav>
       </div>
@@ -162,21 +162,21 @@ onMounted(() => {
           <span class="account-name">{{ userName }}</span>
         </div>
 
-        <button @click="handleThemeToggle" class="btn-theme">
+        <button @click="handleThemeToggle" class="btn-theme" title="Change theme">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 3a6 6 0 0 0 0 12 6 6 0 0 1 0 6 9 9 0 0 1 0-18z" fill="currentColor" stroke="none" />
           </svg>
-          Change theme
+          <span>Change theme</span>
         </button>
 
-        <button @click="handleLogout" class="btn-logout">
+        <button @click="handleLogout" class="btn-logout" title="Log out">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <path d="M16 17l5-5-5-5" />
             <path d="M21 12H9" />
           </svg>
-          Log out
+          <span>Log out</span>
         </button>
       </div>
     </aside>
@@ -253,6 +253,7 @@ onMounted(() => {
   background: var(--border-softer);
   border-right: 1px solid var(--border-softer);
   padding: 1.75rem 1.25rem;
+  transition: width 0.15s ease, padding 0.15s ease;
 }
 
 .sidebar-top {
@@ -268,6 +269,8 @@ onMounted(() => {
   margin: 0;
   padding-left: 0.5rem;
   letter-spacing: -0.4px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .brand-wordmark .accent {
@@ -291,6 +294,7 @@ onMounted(() => {
   font-weight: 500;
   text-decoration: none;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .nav-item svg {
@@ -365,12 +369,14 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .btn-theme svg,
 .btn-logout svg {
   width: 15px;
   height: 15px;
+  flex-shrink: 0;
 }
 
 .btn-theme:hover,
@@ -385,6 +391,7 @@ onMounted(() => {
   margin-left: 248px;
   padding: 3rem 3rem 3.5rem;
   max-width: 1100px;
+  transition: margin-left 0.15s ease;
 }
 
 .table-wrapper {
@@ -485,17 +492,141 @@ onMounted(() => {
   transform: translateX(-8px);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1000px) {
   .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    flex-direction: row;
+    width: 84px;
+    align-items: center;
+    padding: 1.75rem 0.75rem;
+  }
+
+  .brand-wordmark {
+    font-size: 0;
+  }
+
+  .brand-wordmark::before {
+    content: 'N';
+    font-size: 1.35rem;
+  }
+
+  .sidebar-top {
     align-items: center;
   }
+
+  .nav-item {
+    justify-content: center;
+    padding: 0.65rem;
+    width: 100%;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .sidebar-bottom {
+    align-items: center;
+  }
+
+  .account-row {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .account-name {
+    display: none;
+  }
+
+  .btn-theme,
+  .btn-logout {
+    justify-content: center;
+    padding: 0.6rem;
+    width: 100%;
+  }
+
+  .btn-theme span,
+  .btn-logout span {
+    display: none;
+  }
+
+  .content {
+    margin-left: 84px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .brand-wordmark {
+    font-size: 1.35rem;
+  }
+
+  .brand-wordmark::before {
+    content: '';
+  }
+
+  .sidebar-top {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .side-nav {
+    flex-direction: row;
+  }
+
+  .nav-item {
+    width: auto;
+    padding: 0.55rem;
+  }
+
+  .sidebar-bottom {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .account-row {
+    margin-bottom: 0;
+  }
+
+  .btn-theme,
+  .btn-logout {
+    width: auto;
+    padding: 0.55rem;
+  }
+
   .content {
     margin-left: 0;
-    padding: 2rem 1.25rem;
+    max-width: 100%;
+    padding: 2rem 1.5rem;
+  }
+
+  .table-header {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 0.75rem 1rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
   }
 }
 </style>
