@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ApplicationCard from '../components/ApplicationCard.vue'
+import AddApplicationModal from '../components/AddApplicationModal.vue'
 import { getStoredTheme, applyTheme, nextTheme } from '../theme.js'
 
 const router = useRouter()
@@ -11,6 +12,7 @@ const isLoading = ref(true)
 const errorMessage = ref('')
 const userName = ref('')
 const currentTheme = ref(getStoredTheme())
+const showAddModal = ref(false)
 
 function loadUserProfile() {
   const token = localStorage.getItem('jwt_token')
@@ -54,7 +56,10 @@ async function fetchApplications() {
   errorMessage.value = ''
 
   const headers = getAuthHeaders()
-  if (!headers) return
+  if (!headers) {
+    isLoading.value = false
+    return
+  }
 
   try {
     const response = await fetch('http://localhost:8080/applications/self', { headers })
@@ -74,56 +79,30 @@ async function fetchApplications() {
   }
 }
 
-async function handleStatusChange({ id, newStatus }) {
-  const headers = getAuthHeaders()
-  if (!headers) return
-
-  try {
-    const response = await fetch(`http://localhost:8080/applications/${id}/status`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ status: newStatus })
-    })
-
-    if (response.ok) {
-      const updatedApp = await response.json()
-      const index = applications.value.findIndex(a => a.id === id)
-      if (index !== -1) {
-        applications.value[index] = updatedApp
-      }
-    } else {
-      alert('Failed to update status.')
-    }
-  } catch (err) {
-    console.error(err)
+function handleStatusChange({ id, newStatus }) {
+  const app = applications.value.find(a => a.id === id)
+  if (app) {
+    app.status = newStatus
   }
 }
 
-async function handleDelete(id) {
+function handleDelete(id) {
   if (!confirm('Are you sure you want to delete this application?')) return
+  applications.value = applications.value.filter(a => a.id !== id)
+}
 
-  const headers = getAuthHeaders()
-  if (!headers) return
-
-  try {
-    const response = await fetch(`http://localhost:8080/applications/${id}`, {
-      method: 'DELETE',
-      headers
-    })
-
-    if (response.ok) {
-      applications.value = applications.value.filter(a => a.id !== id)
-    } else {
-      alert('Failed to delete application.')
-    }
-  } catch (err) {
-    console.error(err)
-  }
+function handleAddApplication(newApp) {
+  applications.value.unshift({
+    id: crypto.randomUUID(),
+    dateApplied: new Date().toISOString().split('T')[0],
+    ...newApp
+  })
+  showAddModal.value = false
 }
 
 function handleLogout() {
   localStorage.removeItem('jwt_token')
-  router.push('/login')
+  router.push('/')
 }
 
 function handleThemeToggle() {
@@ -191,41 +170,57 @@ onMounted(() => {
         <p>Loading your applications…</p>
       </div>
 
-      <div v-else-if="applications.length > 0" class="table-wrapper">
-        <div class="table-section-title">Applications</div>
-
-        <div class="table-header">
-          <div class="th col-company">Company & role</div>
-          <div class="th col-location">Location</div>
-          <div class="th col-date">Applied</div>
-          <div class="th col-status">Status</div>
-          <div class="th col-link">Posting</div>
-          <div class="th col-actions"></div>
+      <div v-else>
+        <div class="content-header">
+          <h2 class="table-section-title">Applications</h2>
+          <button @click="showAddModal = true" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Add application</span>
+          </button>
         </div>
 
-        <div class="table-body">
-          <TransitionGroup name="table-row">
-            <ApplicationCard
-              v-for="app in applications"
-              :key="app.id"
-              :application="app"
-              @status-change="handleStatusChange"
-              @delete="handleDelete"
-            />
-          </TransitionGroup>
-        </div>
-      </div>
+        <div v-if="applications.length > 0" class="table-wrapper">
+          <div class="table-header">
+            <div class="th col-company">Company & role</div>
+            <div class="th col-location">Location</div>
+            <div class="th col-date">Applied</div>
+            <div class="th col-status">Status</div>
+            <div class="th col-link">Posting</div>
+            <div class="th col-actions"></div>
+          </div>
 
-      <div v-else class="empty-state">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="7" width="18" height="13" rx="2" />
-          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          <path d="M3 12h18" />
-        </svg>
-        <p class="empty-title">Nothing tracked yet</p>
-        <p class="empty-sub">Applications you add will show up here, sorted and ready to update.</p>
+          <div class="table-body">
+            <TransitionGroup name="table-row">
+              <ApplicationCard
+                v-for="app in applications"
+                :key="app.id"
+                :application="app"
+                @status-change="handleStatusChange"
+                @delete="handleDelete"
+              />
+            </TransitionGroup>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="7" width="18" height="13" rx="2" />
+            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <path d="M3 12h18" />
+          </svg>
+          <p class="empty-title">Nothing tracked yet</p>
+          <p class="empty-sub">Applications you add will show up here, sorted and ready to update.</p>
+        </div>
       </div>
     </main>
+
+    <AddApplicationModal
+      :is-open="showAddModal"
+      @close="showAddModal = false"
+      @add="handleAddApplication"
+    />
   </div>
 </template>
 
@@ -394,17 +389,57 @@ onMounted(() => {
   transition: margin-left 0.15s ease;
 }
 
-.table-wrapper {
+.content-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 0.25rem;
 }
 
 .table-section-title {
   color: var(--text-primary);
   font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin: 0;
   letter-spacing: -0.3px;
+  line-height: 1;
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid transparent;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-add svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-add:hover {
+  background: var(--accent-soft-strong);
+}
+
+.btn-add:active {
+  transform: scale(0.98);
+}
+
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .table-header {
