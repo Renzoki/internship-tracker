@@ -444,9 +444,9 @@ onMounted(() => {
 
 .table-header {
   display: grid;
-  grid-template-columns: 2.2fr 1.6fr 1.1fr 1.3fr 1fr 1.4fr;
+  grid-template-columns: 2.2fr 1.6fr 1.1fr 1.3fr 1fr 40px;
   gap: 1rem;
-  padding: 0 1.25rem 0.7rem;
+  padding: 0 1.25rem 0.7rem 1.5rem;
   border-bottom: 1px solid var(--border-soft);
   font-size: 0.75rem;
   color: var(--text-muted);

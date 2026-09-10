@@ -8,16 +8,22 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const isLoading = ref(false)
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 function goHome() {
   router.push('/')
 }
 
 async function handleLogin() {
+  if (isLoading.value) return
+
   errorMessage.value = ''
+  isLoading.value = true
 
   try {
-    const response = await fetch('http://localhost:8080/auth/login', {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -30,18 +36,18 @@ async function handleLogin() {
       const data = await response.json()
       const token = data.accessToken || data.token
       localStorage.setItem('jwt_token', token)
-
       router.push('/dashboard')
     } else if (response.status === 401 || response.status === 403) {
       errorMessage.value = 'Invalid email or password.'
     } else {
-      console.warn(`Server responded with HTTP Status: ${response.status}`)
       const data = await response.json().catch(() => null)
       errorMessage.value = data?.message || 'Login failed. Please try again.'
     }
   } catch (err) {
     console.error('Request failed:', err)
     errorMessage.value = 'Unable to reach the server. Make sure Spring Boot is running.'
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -68,8 +74,9 @@ async function handleLogin() {
 
     <form @submit.prevent="handleLogin">
       <div class="input-group">
-        <label>EMAIL ADDRESS</label>
+        <label for="email-input">EMAIL ADDRESS</label>
         <input
+          id="email-input"
           v-model="email"
           type="email"
           placeholder="alex@example.com"
@@ -79,8 +86,9 @@ async function handleLogin() {
       </div>
 
       <div class="input-group">
-        <label>PASSWORD</label>
+        <label for="password-input">PASSWORD</label>
         <input
+          id="password-input"
           v-model="password"
           type="password"
           placeholder="Enter your password"
@@ -88,7 +96,9 @@ async function handleLogin() {
         />
       </div>
 
-      <button type="submit" class="btn-submit">LOG IN</button>
+      <button type="submit" class="btn-submit" :disabled="isLoading">
+        {{ isLoading ? 'LOGGING IN...' : 'LOG IN' }}
+      </button>
     </form>
 
     <router-link to="/signup" class="back-link">Need an account? Sign up</router-link>

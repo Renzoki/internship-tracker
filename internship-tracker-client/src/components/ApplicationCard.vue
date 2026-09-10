@@ -67,6 +67,13 @@ const formatWorkMode = (mode) => {
       {{ formattedDate }}
     </div>
 
+    <div class="col col-status">
+      <StatusDropdown
+        :status="application.status"
+        @change="handleStatusChange"
+      />
+    </div>
+
     <div class="col col-link">
       <a
         v-if="application.applicationUrl"
@@ -78,13 +85,6 @@ const formatWorkMode = (mode) => {
         View posting
       </a>
       <span v-else class="no-link">—</span>
-    </div>
-
-    <div class="col col-status">
-      <StatusDropdown
-        :status="application.status"
-        @change="handleStatusChange"
-      />
     </div>
 
     <div class="col col-actions">
@@ -104,7 +104,7 @@ const formatWorkMode = (mode) => {
 .table-row {
   position: relative;
   display: grid;
-  grid-template-columns: 2.2fr 1.6fr 1.1fr 1fr 1.3fr 40px;
+  grid-template-columns: 2.2fr 1.6fr 1.1fr 1.3fr 1fr 40px;
   align-items: center;
   gap: 1rem;
   padding: 1.05rem 1.25rem 1.05rem 1.5rem;
