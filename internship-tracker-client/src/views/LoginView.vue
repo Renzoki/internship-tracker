@@ -7,7 +7,6 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
-
 async function handleLogin() {
   errorMessage.value = ''
 
@@ -22,12 +21,9 @@ async function handleLogin() {
     })
 
     if (response.ok) {
-      console.log(`%c HTTP ${response.status} ${response.statusText}`, 'color: #42b883; font-weight: bold;')
-
       const data = await response.json()
-      console.log('Login response payload:', data)
-
-      localStorage.setItem('jwt_token', data.token)
+      const token = data.accessToken || data.token
+      localStorage.setItem('jwt_token', token)
 
       router.push('/dashboard')
     } else if (response.status === 401 || response.status === 403) {
