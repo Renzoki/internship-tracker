@@ -1,12 +1,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue'
 import { useRouter } from 'vue-router'
 import ApplicationCard from '../components/ApplicationCard.vue'
 import AddApplicationModal from '../components/AddApplicationModal.vue'
+import EditApplicationModal from '../components/EditApplicationModal.vue'
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue'
 import { getStoredTheme, applyTheme, nextTheme } from '../theme.js'
-const pendingDeleteId = ref(null)
-const pendingDeleteCompany = ref('')
 
 const router = useRouter()
 
@@ -16,6 +15,9 @@ const errorMessage = ref('')
 const userName = ref('')
 const currentTheme = ref(getStoredTheme())
 const showAddModal = ref(false)
+const editingApplication = ref(null)
+const pendingDeleteId = ref(null)
+const pendingDeleteCompany = ref('')
 
 function loadUserProfile() {
   const token = localStorage.getItem('jwt_token')
@@ -100,7 +102,7 @@ async function handleStatusChange({ id, newStatus }) {
         applications.value[index] = updatedApp
       }
     } else {
-      alert('Failed to update status.')
+      console.error('Failed to update status:', response.status)
     }
   } catch (err) {
     console.error(err)
@@ -143,6 +145,45 @@ async function confirmDelete() {
   }
 }
 
+function requestEdit(id) {
+  editingApplication.value = applications.value.find(a => a.id === id) || null
+}
+
+function cancelEdit() {
+  editingApplication.value = null
+}
+
+async function saveEdit({ id, ...formData }) {
+  const headers = getAuthHeaders()
+  if (!headers) return
+
+  try {
+    const response = await fetch(`http://localhost:8080/applications/${id}/details`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(formData)
+    })
+
+    if (response.ok) {
+      const updatedApp = await response.json()
+      const index = applications.value.findIndex(a => a.id === id)
+      if (index !== -1) {
+        applications.value[index] = updatedApp
+      }
+      cancelEdit()
+    } else if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem('jwt_token')
+      router.push('/login')
+    } else if (response.status === 400) {
+      console.error('Validation failed while editing application')
+    } else {
+      console.error('Failed to update application:', response.status)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 async function handleAddApplication(formData) {
   const headers = getAuthHeaders()
   if (!headers) return
@@ -175,7 +216,7 @@ async function handleAddApplication(formData) {
 
 function handleLogout() {
   localStorage.removeItem('jwt_token')
-  router.push('/')
+  router.push('/login')
 }
 
 function handleThemeToggle() {
@@ -272,6 +313,7 @@ onMounted(() => {
                 :application="app"
                 @status-change="handleStatusChange"
                 @delete="requestDelete"
+                @edit="requestEdit"
               />
             </TransitionGroup>
           </div>
@@ -293,6 +335,13 @@ onMounted(() => {
       :is-open="showAddModal"
       @close="showAddModal = false"
       @add="handleAddApplication"
+    />
+
+    <EditApplicationModal
+      :is-open="editingApplication !== null"
+      :application="editingApplication"
+      @close="cancelEdit"
+      @save="saveEdit"
     />
 
     <ConfirmDeleteModal
@@ -465,7 +514,7 @@ onMounted(() => {
   flex: 1;
   margin-left: 248px;
   padding: 3rem 3rem 3.5rem;
-  max-width: 1100px;
+  max-width: 1200px;
   transition: margin-left 0.15s ease;
 }
 
@@ -520,6 +569,7 @@ onMounted(() => {
 .table-wrapper {
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 }
 
 .table-header {
@@ -531,6 +581,7 @@ onMounted(() => {
   font-size: 0.75rem;
   color: var(--text-muted);
   font-weight: 600;
+  min-width: 780px;
 }
 
 .table-body {
@@ -667,7 +718,7 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .shell {
     flex-direction: column;
   }

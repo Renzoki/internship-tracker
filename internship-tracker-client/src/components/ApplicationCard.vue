@@ -9,7 +9,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['status-change', 'delete'])
+const emit = defineEmits(['status-change', 'delete', 'edit'])
 
 function handleStatusChange(newStatus) {
   emit('status-change', {
@@ -88,6 +88,12 @@ const formatWorkMode = (mode) => {
     </div>
 
     <div class="col col-actions">
+      <button @click="emit('edit', application.id)" class="btn-edit" title="Edit application" aria-label="Edit application">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+      </button>
       <button @click="emit('delete', application.id)" class="btn-delete" title="Delete application" aria-label="Delete application">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 6h18"/>
@@ -110,6 +116,7 @@ const formatWorkMode = (mode) => {
   padding: 1.05rem 1.25rem 1.05rem 1.5rem;
   border-bottom: 1px solid var(--border-softer);
   transition: background 0.15s ease;
+  min-width: 780px;
 }
 
 .table-row:hover {
@@ -210,8 +217,10 @@ const formatWorkMode = (mode) => {
 
 .col-actions {
   justify-content: flex-end;
+  gap: 0.4rem;
 }
 
+.btn-edit,
 .btn-delete {
   background: transparent;
   border: none;
@@ -227,9 +236,15 @@ const formatWorkMode = (mode) => {
   flex-shrink: 0;
 }
 
+.btn-edit svg,
 .btn-delete svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
+}
+
+.btn-edit:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .btn-delete:hover {
@@ -244,6 +259,7 @@ const formatWorkMode = (mode) => {
     align-items: flex-start;
     gap: 0.6rem;
     padding: 1.1rem 1.1rem 1.1rem 1.5rem;
+    min-width: 0;
   }
 
   .col {
