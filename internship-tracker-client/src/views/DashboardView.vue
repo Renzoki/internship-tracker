@@ -113,13 +113,6 @@ function requestDelete(id) {
   pendingDeleteCompany.value = app?.companyName || ''
 }
 
-function handleAddApplication(newApp) {
-  applications.value.unshift({
-    id: crypto.randomUUID(),
-    dateApplied: new Date().toISOString().split('T')[0],
-    ...newApp
-  })
-  showAddModal.value = false
 function cancelDelete() {
   pendingDeleteId.value = null
   pendingDeleteCompany.value = ''
@@ -150,6 +143,34 @@ async function confirmDelete() {
   }
 }
 
+async function handleAddApplication(formData) {
+  const headers = getAuthHeaders()
+  if (!headers) return
+
+  try {
+    const response = await fetch('http://localhost:8080/applications', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(formData)
+    })
+
+    if (response.ok) {
+      const newApplication = await response.json()
+      applications.value.unshift(newApplication)
+      showAddModal.value = false
+    } else if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem('jwt_token')
+      router.push('/login')
+    } else if (response.status === 400) {
+      const data = await response.json().catch(() => null)
+      alert(data?.message || 'Please check the form for errors.')
+    } else {
+      alert('Failed to add application.')
+    }
+  } catch (err) {
+    console.error(err)
+    alert('Unable to reach the server. Make sure Spring Boot is running.')
+  }
 }
 
 function handleLogout() {
