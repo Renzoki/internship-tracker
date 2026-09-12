@@ -3,6 +3,7 @@ package org.tracker;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -32,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         SecurityConfigSliceTest.TestController.class
 })
 public class SecurityConfigSliceTest {
+
+    @Value("${test.url}")
+    private String testUrl;
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,7 +75,7 @@ public class SecurityConfigSliceTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/test/authorized-endpoint")
                 .header("Authorization", "Bearer " + mockToken)
-                .header("Origin", "https://authorized-domain.com");
+                .header("Origin", testUrl);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
@@ -104,7 +108,7 @@ public class SecurityConfigSliceTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/test/authorized-endpoint")
                 .header("Authorization", "Bearer " + invalidToken)
-                .header("Origin", "https://authorized-domain.com");
+                .header("Origin", testUrl);
 
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
