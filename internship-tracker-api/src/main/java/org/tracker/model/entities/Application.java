@@ -68,6 +68,7 @@ public class Application {
         this.status = ApplicationStatus.APPLIED;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
+        this.user.addApplication(this);
     }
 
     public UUID getId() {

@@ -1,6 +1,7 @@
 package org.tracker.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.tracker.exception.ApplicationAccessDeniedException;
 import org.tracker.exception.ApplicationNotFoundException;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @Validated
+@Transactional
 public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ApplicationMapper mapper;
@@ -57,7 +59,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         User user = getUser(command.userId());
         Application application = mapper.toNewApplication(user, command);
 
-        user.addApplication(application);
         return applicationRepository.save(application);
     }
 
@@ -93,11 +94,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void deleteApplicationById(UUID applicationId, UUID userId) {
         User user = getUser(userId);
         Application application = getApplication(applicationId);
-
         if(!user.getApplicationList().contains(application)){
             throw new ApplicationAccessDeniedException(userId, applicationId);
         }
 
+        user.removeApplication(application);
         applicationRepository.delete(application);
     }
 
