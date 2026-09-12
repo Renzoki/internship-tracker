@@ -1,15 +1,52 @@
 <script setup>
 import { onMounted } from 'vue'
+import anime from 'animejs'
 import { getStoredTheme, applyTheme } from './theme.js'
 
 onMounted(() => {
   applyTheme(getStoredTheme())
 })
+
+function onBeforeLeave(el) {
+  el.style.position = 'absolute'
+  el.style.width = '100%'
+}
+
+function onLeave(el, done) {
+  anime({
+    targets: el,
+    opacity: [1, 0],
+    translateY: [0, -16],
+    duration: 280,
+    easing: 'easeInQuad',
+    complete: done
+  })
+}
+
+function onEnter(el, done) {
+  anime({
+    targets: el,
+    opacity: [0, 1],
+    translateY: [16, 0],
+    duration: 380,
+    easing: 'easeOutQuad',
+    complete: done
+  })
+}
 </script>
 
 <template>
   <main class="app-container">
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <transition
+        mode="out-in"
+        @before-leave="onBeforeLeave"
+        @leave="onLeave"
+        @enter="onEnter"
+      >
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </main>
 </template>
 
@@ -91,5 +128,6 @@ body {
   align-items: center;
   padding: 2rem;
   box-sizing: border-box;
+  position: relative;
 }
 </style>

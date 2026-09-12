@@ -48,71 +48,77 @@ async function handleSignUp() {
 </script>
 
 <template>
-  <GridBackground />
+  <div class="signup-page">
+    <GridBackground />
 
-  <div class="card-form">
-    <div class="header">
-      <span class="tag">INTERNSHIP TRACKER</span>
-      <h2>Create Account</h2>
-    </div>
+    <div class="card-form">
+      <div class="header">
+        <span class="tag">INTERNSHIP TRACKER</span>
+        <h2>Create Account</h2>
+      </div>
 
-    <div v-if="errorMessage" class="error-banner">
-      {{ errorMessage }}
-    </div>
+      <div v-if="errorMessage" class="error-banner">
+        {{ errorMessage }}
+      </div>
 
-    <form @submit.prevent="handleSignUp">
-      <div class="row">
+      <form @submit.prevent="handleSignUp">
+        <div class="row">
+          <div class="input-group">
+            <label>FIRST NAME</label>
+            <input
+              v-model="firstName"
+              placeholder="Alex"
+              maxlength="50"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label>LAST NAME</label>
+            <input
+              v-model="lastName"
+              placeholder="Morgan"
+              maxlength="50"
+              required
+            />
+          </div>
+        </div>
+
         <div class="input-group">
-          <label>FIRST NAME</label>
+          <label>EMAIL ADDRESS</label>
           <input
-            v-model="firstName"
-            placeholder="Alex"
-            maxlength="50"
+            v-model="email"
+            type="email"
+            placeholder="alex@example.com"
+            maxlength="120"
             required
           />
         </div>
 
         <div class="input-group">
-          <label>LAST NAME</label>
+          <label>PASSWORD</label>
           <input
-            v-model="lastName"
-            placeholder="Morgan"
-            maxlength="50"
+            v-model="password"
+            type="password"
+            placeholder="Min. 8 characters"
+            minlength="8"
             required
           />
         </div>
-      </div>
 
-      <div class="input-group">
-        <label>EMAIL ADDRESS</label>
-        <input
-          v-model="email"
-          type="email"
-          placeholder="alex@example.com"
-          maxlength="120"
-          required
-        />
-      </div>
+        <button type="submit" class="btn-submit">REGISTER</button>
+      </form>
 
-      <div class="input-group">
-        <label>PASSWORD</label>
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Min. 8 characters"
-          minlength="8"
-          required
-        />
-      </div>
-
-      <button type="submit" class="btn-submit">REGISTER</button>
-    </form>
-
-    <router-link to="/" class="back-link">← Cancel and return home</router-link>
+      <router-link to="/" class="back-link">← Cancel and return home</router-link>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.signup-page {
+  display: contents;
+}
+
 .card-form {
   background: var(--bg-surface);
   backdrop-filter: blur(12px);
