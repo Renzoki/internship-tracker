@@ -20,6 +20,7 @@ import org.tracker.mapper.ApplicationMapper;
 import org.tracker.model.business.CreateApplicationCommand;
 import org.tracker.model.business.UpdateApplicationDetailsCommand;
 import org.tracker.model.entities.Application;
+import org.tracker.model.entities.User;
 import org.tracker.model.enums.ApplicationStatus;
 import org.tracker.model.enums.WorkMode;
 import org.tracker.model.business.UpdateApplicationStatusCommand;
@@ -71,9 +72,9 @@ public class ApplicationControllerSliceTest {
     public void getAllApplications_HasApplications_returns200() throws Exception {
         when(applicationService.getAllApplications(any(UUID.class)))
                 .thenReturn(List.of(
-                        new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                        new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                                 WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null),
-                        new Application(mockId, null, "IBM", "Quality Assurance Intern", "Taguig",
+                        new Application(mockId, new User(), "IBM", "Quality Assurance Intern", "Taguig",
                                 WorkMode.REMOTE, mockUrl, LocalDate.parse("2004-09-23"), null)
                 ));
 
@@ -134,7 +135,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void getApplicationById_applicationExists_returns200() throws Exception {
         when(applicationService.getApplicationById(any(UUID.class), any(UUID.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String expectedJson = """
@@ -192,7 +193,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void postApplication_validRequestBody_returns201() throws Exception {
         when(applicationService.addNewApplication(any(CreateApplicationCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = """
@@ -335,7 +336,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_validRequestBody_returns200() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = """
@@ -377,7 +378,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_notAllFieldsPresent_returns200() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         //missing fields
@@ -418,7 +419,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_fieldsContainingEmptyStringsPresent_returns400() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = """
@@ -444,7 +445,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_invalidApplicationUrlFormat_returns400() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = """
@@ -470,7 +471,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_invalidWorkModeEnum_returns400() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = """
@@ -496,7 +497,7 @@ public class ApplicationControllerSliceTest {
     @Test
     public void updateApplicationDetails_requestNotContainingAnyFields_returns400() throws Exception {
         when(applicationService.updateApplicationDetails(any(UpdateApplicationDetailsCommand.class)))
-                .thenReturn(new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+                .thenReturn(new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                         WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null));
 
         String requestBody = "{}";
@@ -563,7 +564,7 @@ public class ApplicationControllerSliceTest {
 
     @Test
     public void updateApplicationStatus_validRequestBody_returns200() throws Exception {
-        Application mockApplication = new Application(mockId, null, "Oracle", "Software Engineer Intern", "Makati",
+        Application mockApplication = new Application(mockId, new User(), "Oracle", "Software Engineer Intern", "Makati",
                 WorkMode.HYBRID, mockUrl, LocalDate.parse("2004-02-14"), null);
         mockApplication.setStatus(ApplicationStatus.IN_PROGRESS);
 
