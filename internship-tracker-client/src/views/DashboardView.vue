@@ -79,10 +79,28 @@ async function fetchApplications() {
   }
 }
 
-function handleStatusChange({ id, newStatus }) {
-  const app = applications.value.find(a => a.id === id)
-  if (app) {
-    app.status = newStatus
+async function handleStatusChange({ id, newStatus }) {
+  const headers = getAuthHeaders()
+  if (!headers) return
+
+  try {
+    const response = await fetch(`http://localhost:8080/applications/${id}/status`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ status: newStatus })
+    })
+
+    if (response.ok) {
+      const updatedApp = await response.json()
+      const index = applications.value.findIndex(a => a.id === id)
+      if (index !== -1) {
+        applications.value[index] = updatedApp
+      }
+    } else {
+      alert('Failed to update status.')
+    }
+  } catch (err) {
+    console.error(err)
   }
 }
 
