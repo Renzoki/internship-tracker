@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue'
 import { useRouter } from 'vue-router'
 import ApplicationCard from '../components/ApplicationCard.vue'
 import AddApplicationModal from '../components/AddApplicationModal.vue'
 import { getStoredTheme, applyTheme, nextTheme } from '../theme.js'
+const pendingDeleteId = ref(null)
+const pendingDeleteCompany = ref('')
 
 const router = useRouter()
 
@@ -104,9 +107,10 @@ async function handleStatusChange({ id, newStatus }) {
   }
 }
 
-function handleDelete(id) {
-  if (!confirm('Are you sure you want to delete this application?')) return
-  applications.value = applications.value.filter(a => a.id !== id)
+function requestDelete(id) {
+  const app = applications.value.find(a => a.id === id)
+  pendingDeleteId.value = id
+  pendingDeleteCompany.value = app?.companyName || ''
 }
 
 function handleAddApplication(newApp) {
@@ -116,6 +120,36 @@ function handleAddApplication(newApp) {
     ...newApp
   })
   showAddModal.value = false
+function cancelDelete() {
+  pendingDeleteId.value = null
+  pendingDeleteCompany.value = ''
+}
+
+async function confirmDelete() {
+  const id = pendingDeleteId.value
+  if (!id) return
+
+  const headers = getAuthHeaders()
+  if (!headers) return
+
+  try {
+    const response = await fetch(`http://localhost:8080/applications/${id}`, {
+      method: 'DELETE',
+      headers
+    })
+
+    if (response.ok) {
+      applications.value = applications.value.filter(a => a.id !== id)
+    } else {
+      console.error('Failed to delete application:', response.status)
+    }
+  } catch (err) {
+    console.error(err)
+  } finally {
+    cancelDelete()
+  }
+}
+
 }
 
 function handleLogout() {
@@ -216,7 +250,7 @@ onMounted(() => {
                 :key="app.id"
                 :application="app"
                 @status-change="handleStatusChange"
-                @delete="handleDelete"
+                @delete="requestDelete"
               />
             </TransitionGroup>
           </div>
@@ -238,6 +272,13 @@ onMounted(() => {
       :is-open="showAddModal"
       @close="showAddModal = false"
       @add="handleAddApplication"
+    />
+
+    <ConfirmDeleteModal
+      :is-open="pendingDeleteId !== null"
+      :company-name="pendingDeleteCompany"
+      @close="cancelDelete"
+      @confirm="confirmDelete"
     />
   </div>
 </template>
