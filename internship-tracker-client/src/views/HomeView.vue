@@ -3,29 +3,23 @@ import GridBackground from '../components/GridBackground.vue'
 </script>
 
 <template>
-  <div class="home-page">
-    <GridBackground />
+  <GridBackground />
 
-    <div class="wrapper">
-      <header class="brand-hero">
-        <span class="brand-badge">INTERNSHIP TRACKER</span>
-        <h1 class="main-title">Next<span class="accent">Step</span></h1>
-        <p class="subtitle">Track applications. Stay organized. Get hired.</p>
-      </header>
+  <div class="wrapper">
+    <header class="brand-hero">
+      <span class="brand-badge">INTERNSHIP TRACKER</span>
+      <h1 class="main-title">Next<span class="accent">Step</span></h1>
+      <p class="subtitle">Track applications. Stay organized. Get hired.</p>
+    </header>
 
-      <div class="actions">
-        <router-link to="/signup" class="btn-box-vue">CREATE AN ACCOUNT</router-link>
-        <router-link to="/login" class="btn-outline-vue">LOG IN</router-link>
-      </div>
+    <div class="actions">
+      <router-link to="/signup" class="btn-box-vue">CREATE AN ACCOUNT</router-link>
+      <router-link to="/login" class="btn-outline-vue">LOG IN</router-link>
     </div>
   </div>
 </template>
 
 <style scoped>
-.home-page {
-  display: contents;
-}
-
 .wrapper {
   position: relative;
   z-index: 1;

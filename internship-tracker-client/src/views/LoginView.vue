@@ -53,65 +53,59 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="login-page">
-    <GridBackground />
+  <GridBackground />
 
-    <div class="card-form">
-      <button @click="goHome" class="btn-back" type="button" aria-label="Back to home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-        Back
-      </button>
+  <div class="card-form">
+    <button @click="goHome" class="btn-back" type="button" aria-label="Back to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Back
+    </button>
 
-      <div class="header">
-        <span class="tag">INTERNSHIP TRACKER</span>
-        <h2>Welcome Back</h2>
-      </div>
-
-      <div v-if="errorMessage" class="error-banner">
-        {{ errorMessage }}
-      </div>
-
-      <form @submit.prevent="handleLogin">
-        <div class="input-group">
-          <label for="email-input">EMAIL ADDRESS</label>
-          <input
-            id="email-input"
-            v-model="email"
-            type="email"
-            placeholder="alex@example.com"
-            maxlength="120"
-            required
-          />
-        </div>
-
-        <div class="input-group">
-          <label for="password-input">PASSWORD</label>
-          <input
-            id="password-input"
-            v-model="password"
-            type="password"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-
-        <button type="submit" class="btn-submit" :disabled="isLoading">
-          {{ isLoading ? 'LOGGING IN...' : 'LOG IN' }}
-        </button>
-      </form>
-
-      <router-link to="/signup" class="back-link">Need an account? Sign up</router-link>
+    <div class="header">
+      <span class="tag">INTERNSHIP TRACKER</span>
+      <h2>Welcome Back</h2>
     </div>
+
+    <div v-if="errorMessage" class="error-banner">
+      {{ errorMessage }}
+    </div>
+
+    <form @submit.prevent="handleLogin">
+      <div class="input-group">
+        <label for="email-input">EMAIL ADDRESS</label>
+        <input
+          id="email-input"
+          v-model="email"
+          type="email"
+          placeholder="alex@example.com"
+          maxlength="120"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="password-input">PASSWORD</label>
+        <input
+          id="password-input"
+          v-model="password"
+          type="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-submit" :disabled="isLoading">
+        {{ isLoading ? 'LOGGING IN...' : 'LOG IN' }}
+      </button>
+    </form>
+
+    <router-link to="/signup" class="back-link">Need an account? Sign up</router-link>
   </div>
 </template>
 
 <style scoped>
-.login-page {
-  display: contents;
-}
-
 .card-form {
   position: relative;
   background: var(--bg-surface);

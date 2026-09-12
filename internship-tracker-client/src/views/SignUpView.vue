@@ -27,16 +27,11 @@ async function handleSignUp() {
     })
 
     if (response.ok) {
-      console.log(`%c HTTP ${response.status} ${response.statusText}`, 'color: #42b883; font-weight: bold;')
-
       const createdUser = await response.json()
-      console.log('User created successfully:', createdUser)
-
       router.push('/')
     } else if (response.status === 409) {
       errorMessage.value = 'An account with this email address already exists.'
     } else {
-      console.warn(`Server responded with HTTP Status: ${response.status}`)
       const data = await response.json().catch(() => null)
       errorMessage.value = data?.message || 'Registration failed. Please check your inputs.'
     }
@@ -48,78 +43,73 @@ async function handleSignUp() {
 </script>
 
 <template>
-  <div class="signup-page">
-    <GridBackground />
+  <GridBackground />
 
-    <div class="card-form">
-      <div class="header">
-        <span class="tag">INTERNSHIP TRACKER</span>
-        <h2>Create Account</h2>
-      </div>
-
-      <div v-if="errorMessage" class="error-banner">
-        {{ errorMessage }}
-      </div>
-
-      <form @submit.prevent="handleSignUp">
-        <div class="row">
-          <div class="input-group">
-            <label>FIRST NAME</label>
-            <input
-              v-model="firstName"
-              placeholder="Alex"
-              maxlength="50"
-              required
-            />
-          </div>
-
-          <div class="input-group">
-            <label>LAST NAME</label>
-            <input
-              v-model="lastName"
-              placeholder="Morgan"
-              maxlength="50"
-              required
-            />
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label>EMAIL ADDRESS</label>
-          <input
-            v-model="email"
-            type="email"
-            placeholder="alex@example.com"
-            maxlength="120"
-            required
-          />
-        </div>
-
-        <div class="input-group">
-          <label>PASSWORD</label>
-          <input
-            v-model="password"
-            type="password"
-            placeholder="Min. 8 characters"
-            minlength="8"
-            required
-          />
-        </div>
-
-        <button type="submit" class="btn-submit">REGISTER</button>
-      </form>
-
-      <router-link to="/" class="back-link">← Cancel and return home</router-link>
+  <div class="card-form">
+    <div class="header">
+      <span class="tag">INTERNSHIP TRACKER</span>
+      <h2>Create Account</h2>
     </div>
+
+    <div v-if="errorMessage" class="error-banner">
+      {{ errorMessage }}
+    </div>
+
+    <form @submit.prevent="handleSignUp">
+      <div class="row">
+        <div class="input-group">
+          <label>FIRST NAME</label>
+          <input
+            v-model="firstName"
+            placeholder="Alex"
+            maxlength="50"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label>LAST NAME</label>
+          <input
+            v-model="lastName"
+            placeholder="Morgan"
+            maxlength="50"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>EMAIL ADDRESS</label>
+        <input
+          v-model="email"
+          type="email"
+          placeholder="alex@example.com"
+          maxlength="120"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <label>PASSWORD</label>
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Min. 8 characters"
+          minlength="8"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-submit">REGISTER</button>
+    </form>
+
+    <router-link to="/" class="back-link">← Cancel and return home</router-link>
   </div>
 </template>
 
 <style scoped>
-.signup-page {
-  display: contents;
-}
-
 .card-form {
+  position: relative;
   background: var(--bg-surface);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-soft);
